@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import { User, CreateUserDto } from './user.interface';
+import { User, CreateUserDto, LoginDto } from './user.interface';
 import { Cache } from '@nestjs/cache-manager';
 
 @Injectable()
@@ -49,6 +49,7 @@ export class FirebaseService {
     return user;
   }
 
+  
   async getUser(userId: string): Promise<User | null> {
     const snapshot = await this.db.ref(`users/${userId}`).once('value');
     return snapshot.val();
@@ -96,5 +97,19 @@ export class FirebaseService {
 
     await userRef.remove();
     return true;
+  }
+
+  async loginUser(loginData: LoginDto): Promise<User | null> {
+    const snapshot = await this.db.ref('users').once('value');
+    const users = snapshot.val();
+    if (!users) return null;
+
+    for (const userId in users) {
+      const user = users[userId];
+      if (user.mobileNumber === loginData.mobileNumber && user.password === loginData.password) {
+        return { id: userId, ...user };
+      }
+    }
+    return null;
   }
 }

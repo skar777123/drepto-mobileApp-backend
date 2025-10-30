@@ -12,3 +12,8 @@ export interface CreateUserDto {
   mobileNumber: string;
   password: string;
 }
+
+export interface LoginDto {
+  mobileNumber: string;
+  password: string;
+}

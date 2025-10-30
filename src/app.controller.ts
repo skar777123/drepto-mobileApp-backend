@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Patch, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
 import { FirebaseService } from './firebase/firebase.service';
-import type { CreateUserDto, User } from './firebase/user.interface';
+import type { CreateUserDto, LoginDto, User } from './firebase/user.interface';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @UseInterceptors(CacheInterceptor)
@@ -29,17 +29,26 @@ export class AppController {
     return this.firebaseService.createUser(createUserDto);
   }
 
-  @Get('users')
+  @Post('login')
+    async login(@Body() loginData: LoginDto) {
+      const user = await this.firebaseService.loginUser(loginData);
+      if (!user) {
+        return { success: false, message: 'Invalid credentials' };
+      }
+      return { success: true, user };
+    }
+
+  @Get('Allusers')
   async getAllUsers(): Promise<User[]> {
     return this.firebaseService.getAllUsers();
   }
 
-  @Get('users/:id')
+  @Get('user/:id')
   async getUser(@Param('id') id: string): Promise<User | null> {
     return this.firebaseService.getUser(id);
   }
 
-  @Patch('users/:id')
+  @Patch('user/:id')
   async updateUser(
     @Param('id') id: string,
     @Body() updates: Partial<User>,
@@ -47,9 +56,11 @@ export class AppController {
     return this.firebaseService.updateUser(id, updates);
   }
 
-  @Delete('users/:id')
+  @Delete('user/:id')
   async deleteUser(@Param('id') id: string): Promise<{ deleted: boolean }> {
     const deleted = await this.firebaseService.deleteUser(id);
     return { deleted };
   }
+
+  
 }
