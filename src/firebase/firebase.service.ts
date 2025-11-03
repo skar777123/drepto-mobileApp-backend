@@ -212,6 +212,13 @@ export class FirebaseService {
     return null;
   }
 
+  async getAllNurse(): Promise<Nurse | null> {
+    const snapshot = await this.db.ref('nurse').once('value');
+    const nurse = snapshot.val();
+    if (!nurse) return null;
+    return nurse;
+  }
+
   async appointmentBooking(appointmentData: appointmentDto): Promise<string> {
     const appointmentId = this.db.ref('appointments').push().key;
     if (!appointmentId) {

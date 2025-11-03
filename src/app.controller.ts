@@ -54,6 +54,11 @@ export class AppController {
     return this.firebaseService.createNurse(createNurseDto);
   }
 
+  @Get('Allnurse')
+  async getAllNurse() {
+    return this.firebaseService.getAllNurse();
+  }
+
   @Post('authorized')
   async createAuth(
     @Body() createAuthDto: CreateAuthorizedDto,
