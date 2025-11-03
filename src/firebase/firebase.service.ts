@@ -8,6 +8,7 @@ import {
   Nurse,
   Authorized,
   CreateAuthorizedDto,
+  appointmentDto,
 } from './user.interface';
 import { Cache } from '@nestjs/cache-manager';
 
@@ -209,5 +210,37 @@ export class FirebaseService {
       }
     }
     return null;
+  }
+
+  async appointmentBooking(appointmentData: appointmentDto): Promise<string> {
+    const appointmentId = this.db.ref('appointments').push().key;
+    if (!appointmentId) {
+      throw new Error('Failed to generate appointment ID');
+    }
+
+    const appointment = {
+      ...appointmentData,
+      appointmentId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    await this.db.ref(`appointments/${appointmentId}`).set(appointment);
+    return appointmentId;
+  }
+
+  async getUsersAppointment(userId: string): Promise<any[]> {
+    const snapshot = await this.db.ref('appointments').once('value');
+    const appointments = snapshot.val();
+    if (!appointments) return [];
+
+    const userAppointments = Object.keys(appointments)
+      .map((key) => ({
+        appointmentId: key,
+        ...appointments[key],
+      }))
+      .filter((appointment) => appointment.userId === userId);
+
+    return userAppointments;
   }
 }

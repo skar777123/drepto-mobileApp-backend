@@ -66,6 +66,29 @@ export interface CreateNurseDto {
   password: string;
 }
 
+export interface appointmentDto {
+  //
+  userId: string;
+  patientName: string;
+  address: string;
+  mobileNumber: string;
+  symptoms: string;
+  //
+  date: string;
+  time: string;
+  //
+  nurseId: string;
+  nurseName: string;
+  nurseSpecialization: string;
+  //
+  paymentMethod: string;
+  transactionId: string;
+  amount: number;
+  //
+  appointmentId: string;
+  status: string;
+}
+
 export interface CreateAuthorizedDto {
   firstName: string;
   lastName: string;

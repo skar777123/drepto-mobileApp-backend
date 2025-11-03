@@ -19,6 +19,7 @@ import type {
   Nurse,
   CreateAuthorizedDto,
   Authorized,
+  appointmentDto,
 } from './firebase/user.interface';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 
@@ -111,5 +112,19 @@ export class AppController {
   async deleteUser(@Param('id') id: string): Promise<{ deleted: boolean }> {
     const deleted = await this.firebaseService.deleteUser(id);
     return { deleted };
+  }
+
+  @Post('appointments')
+  async bookAppointment(
+    @Body() appointmentData: appointmentDto,
+  ): Promise<{ appointmentId: string }> {
+    const appointmentId =
+      await this.firebaseService.appointmentBooking(appointmentData);
+    return { appointmentId };
+  }
+
+  @Get('appointments/:userId')
+  async getUserAppointments(@Param('userId') userId: string): Promise<any[]> {
+    return this.firebaseService.getUsersAppointment(userId);
   }
 }
