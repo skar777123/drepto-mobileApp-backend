@@ -12,7 +12,7 @@ import { redisStore } from 'cache-manager-redis-yet';
     FirebaseModule,
     CacheModule.register({
       isGlobal: true,
-      ttl: 120 * 1000,
+      ttl: 120 * 10000,
       store: redisStore,
     }),
   ],

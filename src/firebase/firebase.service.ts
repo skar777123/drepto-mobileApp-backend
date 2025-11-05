@@ -247,7 +247,6 @@ export class FirebaseService {
     const snapshot = await this.db.ref('appointments').once('value');
     const appointments = snapshot.val();
     if (!appointments) return [];
-
     const userAppointments = Object.keys(appointments)
       .map((key) => ({
         appointmentId: key,
