@@ -55,7 +55,7 @@ export interface CreateUserDto {
   email: string;
   mobileNumber: string;
   gender: string;
-  role:string;
+  role: string;
   dateOfBirth: string;
   address: string;
   medicalHistory: string;
@@ -70,7 +70,7 @@ export interface CreateNurseDto {
   dateOfBirth: string;
   address: string;
   gender: string;
-  role:string;
+  role: string;
   licenseNumber: string;
   specification: string;
   availiability: string;
@@ -78,14 +78,12 @@ export interface CreateNurseDto {
   password: string;
 }
 
-
-
 export interface CreateAuthorizedDto {
   firstName: string;
   lastName: string;
   email: string;
   gender: string;
-  role:string;
+  role: string;
   mobileNumber: string;
   dateOfBirth: string;
   address: string;
@@ -94,24 +92,19 @@ export interface CreateAuthorizedDto {
 }
 
 export interface appointmentDto {
-  //
   userId: string;
   patientName: string;
   address: string;
   mobileNumber: string;
   symptoms: string;
-  //
   date: string;
   time: string;
-  //
   nurseId: string;
   nurseName: string;
   nurseSpecialization: string;
-  //
   paymentMethod: string;
   transactionId: string;
   amount: number;
-  //
   appointmentId: string;
   status: string;
 }

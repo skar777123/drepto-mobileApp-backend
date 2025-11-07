@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AppService } from './app.service';
-import { FirebaseService } from './firebase/firebase.service';
+import { MongoService } from './mongo/mongo.service';
 import type {
   CreateUserDto,
   LoginDto,
@@ -20,7 +20,7 @@ import type {
   CreateAuthorizedDto,
   Authorized,
   appointmentDto,
-} from './firebase/user.interface';
+} from './interfaces/user.interface';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @UseInterceptors(CacheInterceptor)
@@ -28,42 +28,40 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private readonly firebaseService: FirebaseService,
+    private readonly mongoService: MongoService,
   ) {}
 
-  @Get('firebase-test')
-  async testFirebase(): Promise<string> {
+  @Get('mongo-test')
+  async testMongo(): Promise<string> {
     try {
-      await this.firebaseService.setData('test', {
-        message: 'Firebase connected successfully!',
-      });
-      const data = await this.firebaseService.getData('test');
-      return `Firebase Realtime Database test: ${JSON.stringify(data)}`;
+      // Simple test to check if MongoDB connection works
+      const users = await this.mongoService.getAllUsers();
+      return `MongoDB connect successful`;
     } catch (error) {
-      return `Firebase connection failed: ${error.message}`;
+      return `MongoDB connection failed: ${error.message}`;
     }
   }
 
   @Post('user')
   async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.firebaseService.createUser(createUserDto);
+    return this.mongoService.createUser(createUserDto);
   }
 
   @Post('nurse')
   async createNurse(@Body() createNurseDto: CreateNurseDto): Promise<Nurse> {
-    return this.firebaseService.createNurse(createNurseDto);
+    return this.mongoService.createNurse(createNurseDto);
   }
 
   @Get('Allnurse')
-  async getAllNurse() {
-    return this.firebaseService.getAllNurse();
+  async getAllNurse(): Promise<Nurse[]> {
+    return this.mongoService.getAllNurse();
   }
 
   @Post('authorized')
   async createAuth(
     @Body() createAuthDto: CreateAuthorizedDto,
   ): Promise<Authorized> {
-    return this.firebaseService.createAuthorized(createAuthDto);
+    return this.mongoService.createAuthorized(createAuthDto);
   }
 
   @Post('login/:role')
@@ -72,21 +70,21 @@ export class AppController {
     @Param('role') role: string,
   ): Promise<any> {
     if (role === 'user') {
-      const user = await this.firebaseService.loginUser(loginData);
+      const user = await this.mongoService.loginUser(loginData);
       if (!user) {
         return { success: false, message: 'Invalid credentials' };
       }
       return { success: true, user };
     }
     if (role === 'nurse') {
-      const nurse = await this.firebaseService.loginNurse(loginData);
+      const nurse = await this.mongoService.loginNurse(loginData);
       if (!nurse) {
         return { success: false, message: 'Invalid credentials' };
       }
       return { success: true, nurse };
     }
     if (role === 'authorized') {
-      const auth = await this.firebaseService.loginAuthorized(loginData);
+      const auth = await this.mongoService.loginAuthorized(loginData);
       if (!auth) {
         return { success: false, message: 'Invalid credentials' };
       }
@@ -97,12 +95,12 @@ export class AppController {
 
   @Get('Allusers')
   async getAllUsers(): Promise<User[]> {
-    return this.firebaseService.getAllUsers();
+    return this.mongoService.getAllUsers();
   }
 
   @Get('user/:id')
   async getUser(@Param('id') id: string): Promise<User | null> {
-    return this.firebaseService.getUser(id);
+    return this.mongoService.getUser(id);
   }
 
   @Patch('user/:id')
@@ -110,12 +108,12 @@ export class AppController {
     @Param('id') id: string,
     @Body() updates: Partial<User>,
   ): Promise<User | null> {
-    return this.firebaseService.updateUser(id, updates);
+    return this.mongoService.updateUser(id, updates);
   }
 
   @Delete('user/:id')
   async deleteUser(@Param('id') id: string): Promise<{ deleted: boolean }> {
-    const deleted = await this.firebaseService.deleteUser(id);
+    const deleted = await this.mongoService.deleteUser(id);
     return { deleted };
   }
 
@@ -124,12 +122,12 @@ export class AppController {
     @Body() appointmentData: appointmentDto,
   ): Promise<{ appointmentId: string }> {
     const appointmentId =
-      await this.firebaseService.appointmentBooking(appointmentData);
+      await this.mongoService.appointmentBooking(appointmentData);
     return { appointmentId };
   }
 
   @Get('appointments/:userId')
   async getUserAppointments(@Param('userId') userId: string): Promise<any[]> {
-    return this.firebaseService.getUsersAppointment(userId);
+    return this.mongoService.getUsersAppointment(userId);
   }
 }
