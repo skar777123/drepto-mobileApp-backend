@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   UseInterceptors,
+  Header,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MongoService } from './mongo/mongo.service';
@@ -22,6 +23,7 @@ import type {
   appointmentDto,
 } from './interfaces/user.interface';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import { MetricsService } from './metrics/metrics.service';
 
 @UseInterceptors(CacheInterceptor)
 @Controller()
@@ -29,6 +31,7 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly mongoService: MongoService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   @Get('mongo-test')
@@ -129,5 +132,11 @@ export class AppController {
   @Get('appointments/:userId')
   async getUserAppointments(@Param('userId') userId: string): Promise<any[]> {
     return this.mongoService.getUsersAppointment(userId);
+  }
+
+  @Get('/metrics')
+  @Header('Content-Type', 'text/plain')
+  async metrics() {
+    return await this.metricsService.getMetrics();
   }
 }

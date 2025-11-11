@@ -24,8 +24,10 @@ export class MongoService {
   constructor(
     @InjectModel('User') private userModel: Model<UserDocument>,
     @InjectModel('Nurse') private nurseModel: Model<NurseDocument>,
-    @InjectModel('Authorized') private authorizedModel: Model<AuthorizedDocument>,
-    @InjectModel('Appointment') private appointmentModel: Model<AppointmentDocument>,
+    @InjectModel('Authorized')
+    private authorizedModel: Model<AuthorizedDocument>,
+    @InjectModel('Appointment')
+    private appointmentModel: Model<AppointmentDocument>,
   ) {}
 
   // User methods
@@ -49,14 +51,19 @@ export class MongoService {
 
   async getAllUsers(): Promise<User[]> {
     const users = await this.userModel.find().exec();
-    return users.map(user => ({
+    return users.map((user) => ({
       id: (user._id as any).toString(),
       ...user.toObject(),
     }));
   }
 
-  async updateUser(userId: string, updates: Partial<User>): Promise<User | null> {
-    const user = await this.userModel.findByIdAndUpdate(userId, updates, { new: true }).exec();
+  async updateUser(
+    userId: string,
+    updates: Partial<User>,
+  ): Promise<User | null> {
+    const user = await this.userModel
+      .findByIdAndUpdate(userId, updates, { new: true })
+      .exec();
     if (!user) return null;
     return {
       id: (user._id as any).toString(),
@@ -70,10 +77,12 @@ export class MongoService {
   }
 
   async loginUser(loginData: LoginDto): Promise<User | null> {
-    const user = await this.userModel.findOne({
-      email: loginData.email,
-      password: loginData.password,
-    }).exec();
+    const user = await this.userModel
+      .findOne({
+        email: loginData.email,
+        password: loginData.password,
+      })
+      .exec();
     if (!user) return null;
     return {
       id: (user._id as any).toString(),
@@ -93,17 +102,19 @@ export class MongoService {
 
   async getAllNurse(): Promise<Nurse[]> {
     const nurses = await this.nurseModel.find().exec();
-    return nurses.map(nurse => ({
+    return nurses.map((nurse) => ({
       id: (nurse._id as any).toString(),
       ...nurse.toObject(),
     }));
   }
 
   async loginNurse(loginData: LoginDto): Promise<Nurse | null> {
-    const nurse = await this.nurseModel.findOne({
-      email: loginData.email,
-      password: loginData.password,
-    }).exec();
+    const nurse = await this.nurseModel
+      .findOne({
+        email: loginData.email,
+        password: loginData.password,
+      })
+      .exec();
     if (!nurse) return null;
     return {
       id: (nurse._id as any).toString(),
@@ -122,10 +133,12 @@ export class MongoService {
   }
 
   async loginAuthorized(loginData: LoginDto): Promise<Authorized | null> {
-    const authorized = await this.authorizedModel.findOne({
-      email: loginData.email,
-      password: loginData.password,
-    }).exec();
+    const authorized = await this.authorizedModel
+      .findOne({
+        email: loginData.email,
+        password: loginData.password,
+      })
+      .exec();
     if (!authorized) return null;
     return {
       id: (authorized._id as any).toString(),
@@ -142,7 +155,7 @@ export class MongoService {
 
   async getUsersAppointment(userId: string): Promise<any[]> {
     const appointments = await this.appointmentModel.find({ userId }).exec();
-    return appointments.map(appointment => ({
+    return appointments.map((appointment) => ({
       appointmentId: (appointment._id as any).toString(),
       ...appointment.toObject(),
     }));
