@@ -58,12 +58,12 @@ export class AppController {
     }
   }
 
-  @Post('nurse')
+  @Post('nurse-mongo')
   async createNurse(@Body() createNurseDto: CreateNurseDto): Promise<Nurse> {
     return this.mongoService.createNurse(createNurseDto);
   }
 
-  @Get('Allnurse')
+  @Get('Allnurse-mongo')
   async getAllNurse(): Promise<Nurse[]> {
     return this.mongoService.getAllNurse();
   }
@@ -92,6 +92,23 @@ export class AppController {
       return { success: false, message: 'Invalid role specified' };
     }
 
+    if (!userData) {
+      return { success: false, message: 'Invalid credentials' };
+    }
+
+    const token = await this.authService.generateToken({
+      id: userData.id,
+      email: userData.email,
+      role: userData.role,
+      iat: Math.floor(Date.now() / 1000),
+    });
+
+    return { success: true, token, user: userData };
+  }
+
+  @Post('nurse-mongo-login')
+  async loginNurseMongo(@Body() loginData: LoginDto): Promise<any> {
+    const userData = await this.mongoService.loginNurse(loginData);
     if (!userData) {
       return { success: false, message: 'Invalid credentials' };
     }

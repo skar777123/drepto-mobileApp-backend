@@ -29,6 +29,9 @@ export interface Nurse {
   availiability: string;
   isAvailable: boolean;
   password?: string;
+  experienceYears: number;
+  rating: number;
+  serviceTypes: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -76,6 +79,9 @@ export interface CreateNurseDto {
   availiability: string;
   isAvailable: boolean;
   password: string;
+  experienceYears: number;
+  rating: number;
+  serviceTypes: string[];
 }
 
 export interface CreateAuthorizedDto {

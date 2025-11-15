@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+export type NurseServiceType = 'homeCare' | 'followUp' | 'specialty';
+
 export type NurseDocument = Nurse & Document;
 
 @Schema({ timestamps: true })
@@ -18,19 +20,19 @@ export class Nurse {
   mobileNumber: string;
 
   @Prop({ required: true })
+  gender: string;
+
+  @Prop({ required: true })
   dateOfBirth: string;
 
   @Prop({ required: true })
   address: string;
 
   @Prop({ required: true })
-  gender: string;
+  licenseNumber: string;
 
   @Prop({ required: true })
   role: string;
-
-  @Prop({ required: true })
-  licenseNumber: string;
 
   @Prop({ required: true })
   specification: string;
@@ -38,11 +40,20 @@ export class Nurse {
   @Prop({ required: true })
   availiability: string;
 
-  @Prop({ required: true, default: true })
+  @Prop({ required: true })
   isAvailable: boolean;
 
   @Prop({ required: true })
   password: string;
+
+  @Prop({ required: true })
+  experienceYears: number;
+
+  @Prop({ required: true })
+  rating: number;
+
+  @Prop({ required: true, type: [String], enum: ['homeCare', 'followUp', 'specialty'] })
+  serviceTypes: NurseServiceType[];
 }
 
 export const NurseSchema = SchemaFactory.createForClass(Nurse);
