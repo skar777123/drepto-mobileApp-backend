@@ -15,11 +15,11 @@ async function bootstrap() {
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
-
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  const port = process.env.PORT || 6001;
+  await app.listen(port, '0.0.0.0');
+  console.log(`Application is running on: http://localhost:${port}`);
 }
 bootstrap();
 const collectDefaultMetrics = client.collectDefaultMetrics;
 
 collectDefaultMetrics({ register: client.register });
-

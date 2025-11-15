@@ -9,7 +9,7 @@ export interface User {
   address: string;
   role: string;
   medicalHistory: string;
-  password: string;
+  password?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -28,7 +28,7 @@ export interface Nurse {
   specification: string;
   availiability: string;
   isAvailable: boolean;
-  password: string;
+  password?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -44,7 +44,7 @@ export interface Authorized {
   role: string;
   gender: string;
   roleTitle: string;
-  password: string;
+  password?: string;
   createdAt?: string;
   updatedAt?: string;
 }

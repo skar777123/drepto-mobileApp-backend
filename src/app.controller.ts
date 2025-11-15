@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MongoService } from './mongo/mongo.service';
+import { AuthService } from './auth/auth.service';
 import type {
   CreateUserDto,
   LoginDto,
@@ -31,6 +32,7 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly mongoService: MongoService,
+    private readonly authService: AuthService,
   ) {}
 
   @Get('mongo-test')
@@ -45,8 +47,15 @@ export class AppController {
   }
 
   @Post('user')
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.mongoService.createUser(createUserDto);
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<User | { success: boolean; message: string }> {
+    try {
+      return await this.mongoService.createUser(createUserDto);
+    } catch (error) {
+      if (error.message === 'User with this email already exists') {
+        return { success: false, message: 'User with this email already exists' };
+      }
+      throw error;
+    }
   }
 
   @Post('nurse')
@@ -71,28 +80,30 @@ export class AppController {
     @Body() loginData: LoginDto,
     @Param('role') role: string,
   ): Promise<any> {
+    let userData: any = null;
+
     if (role === 'user') {
-      const user = await this.mongoService.loginUser(loginData);
-      if (!user) {
-        return { success: false, message: 'Invalid credentials' };
-      }
-      return { success: true, user };
+      userData = await this.mongoService.loginUser(loginData);
+    } else if (role === 'nurse') {
+      userData = await this.mongoService.loginNurse(loginData);
+    } else if (role === 'authorized') {
+      userData = await this.mongoService.loginAuthorized(loginData);
+    } else {
+      return { success: false, message: 'Invalid role specified' };
     }
-    if (role === 'nurse') {
-      const nurse = await this.mongoService.loginNurse(loginData);
-      if (!nurse) {
-        return { success: false, message: 'Invalid credentials' };
-      }
-      return { success: true, nurse };
+
+    if (!userData) {
+      return { success: false, message: 'Invalid credentials' };
     }
-    if (role === 'authorized') {
-      const auth = await this.mongoService.loginAuthorized(loginData);
-      if (!auth) {
-        return { success: false, message: 'Invalid credentials' };
-      }
-      return { success: true, auth };
-    }
-    return { success: false, message: 'Invalid role specified' };
+
+    const token = await this.authService.generateToken({
+      id: userData.id,
+      email: userData.email,
+      role: userData.role,
+      iat: Math.floor(Date.now() / 1000),
+    });
+
+    return { success: true, token, user: userData };
   }
 
   @Get('Allusers')
