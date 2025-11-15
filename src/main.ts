@@ -4,6 +4,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
+import client from 'prom-client';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -17,5 +18,8 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
-
 bootstrap();
+const collectDefaultMetrics = client.collectDefaultMetrics;
+
+collectDefaultMetrics({ register: client.register });
+

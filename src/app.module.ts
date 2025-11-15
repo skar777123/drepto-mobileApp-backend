@@ -4,7 +4,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongoModule } from './mongo/mongo.module';
-import { MetricsModule } from './metrics/metrics.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 
@@ -15,7 +14,7 @@ import { redisStore } from 'cache-manager-redis-yet';
       process.env.MONGODB_URI || 'mongodb://localhost:27017/drepto',
     ),
     MongoModule,
-    MetricsModule,
+    
     CacheModule.register({
       isGlobal: true,
       ttl: 120 * 10000,

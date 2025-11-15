@@ -23,7 +23,7 @@ import type {
   appointmentDto,
 } from './interfaces/user.interface';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import { MetricsService } from './metrics/metrics.service';
+import client from 'prom-client'
 
 @UseInterceptors(CacheInterceptor)
 @Controller()
@@ -31,7 +31,6 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly mongoService: MongoService,
-    private readonly metricsService: MetricsService,
   ) {}
 
   @Get('mongo-test')
@@ -135,8 +134,8 @@ export class AppController {
   }
 
   @Get('/metrics')
-  @Header('Content-Type', 'text/plain')
   async metrics() {
-    return await this.metricsService.getMetrics();
+    const metrics = await client.register.metrics();
+    return metrics;
   }
 }
