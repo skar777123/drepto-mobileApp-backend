@@ -3,10 +3,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Doctor, DoctorSchema } from '../schemas/doctor.schema';
 import { DoctorService } from './doctor.service';
 import { DoctorController } from './doctor.controller';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Doctor.name, schema: DoctorSchema }]),
+    AuthModule,
   ],
   providers: [DoctorService],
   controllers: [DoctorController],

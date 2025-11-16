@@ -1,13 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { LabCenterService } from './lab-center.service';
 import { LabCenter } from '../schemas/lab-center.schema';
+import { CreateLabCenterDto, UpdateLabCenterDto } from '../dto/lab-center.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('lab-center')
+@UseGuards(AuthGuard)
 export class LabCenterController {
   constructor(private readonly labCenterService: LabCenterService) {}
 
   @Post()
-  create(@Body() createLabCenterDto: Partial<LabCenter>) {
+  create(@Body() createLabCenterDto: CreateLabCenterDto) {
     return this.labCenterService.create(createLabCenterDto);
   }
 
@@ -22,7 +34,10 @@ export class LabCenterController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLabCenterDto: Partial<LabCenter>) {
+  update(
+    @Param('id') id: string,
+    @Body() updateLabCenterDto: UpdateLabCenterDto,
+  ) {
     return this.labCenterService.update(id, updateLabCenterDto);
   }
 

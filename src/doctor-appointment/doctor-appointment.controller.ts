@@ -1,13 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { DoctorAppointmentService } from './doctor-appointment.service';
 import { DoctorAppointment } from '../schemas/doctor-appointment.schema';
+import {
+  CreateDoctorAppointmentDto,
+  UpdateDoctorAppointmentDto,
+} from '../dto/doctor-appointment.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('doctor-appointment')
+@UseGuards(AuthGuard)
 export class DoctorAppointmentController {
-  constructor(private readonly doctorAppointmentService: DoctorAppointmentService) {}
+  constructor(
+    private readonly doctorAppointmentService: DoctorAppointmentService,
+  ) {}
 
   @Post()
-  create(@Body() createDoctorAppointmentDto: Partial<DoctorAppointment>) {
+  create(@Body() createDoctorAppointmentDto: CreateDoctorAppointmentDto) {
     return this.doctorAppointmentService.create(createDoctorAppointmentDto);
   }
 
@@ -22,7 +39,10 @@ export class DoctorAppointmentController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDoctorAppointmentDto: Partial<DoctorAppointment>) {
+  update(
+    @Param('id') id: string,
+    @Body() updateDoctorAppointmentDto: UpdateDoctorAppointmentDto,
+  ) {
     return this.doctorAppointmentService.update(id, updateDoctorAppointmentDto);
   }
 

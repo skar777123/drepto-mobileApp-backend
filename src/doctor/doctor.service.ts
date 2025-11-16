@@ -27,7 +27,9 @@ export class DoctorService {
   }
 
   async update(id: string, updateDoctorDto: Partial<Doctor>): Promise<Doctor> {
-    const updatedDoctor = await this.doctorModel.findByIdAndUpdate(id, updateDoctorDto, { new: true }).exec();
+    const updatedDoctor = await this.doctorModel
+      .findByIdAndUpdate(id, updateDoctorDto, { new: true })
+      .exec();
     if (!updatedDoctor) {
       throw new NotFoundException(`Doctor with ID ${id} not found`);
     }

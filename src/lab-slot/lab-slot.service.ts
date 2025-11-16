@@ -26,8 +26,13 @@ export class LabSlotService {
     return labSlot;
   }
 
-  async update(id: string, updateLabSlotDto: Partial<LabSlot>): Promise<LabSlot> {
-    const updatedLabSlot = await this.labSlotModel.findByIdAndUpdate(id, updateLabSlotDto, { new: true }).exec();
+  async update(
+    id: string,
+    updateLabSlotDto: Partial<LabSlot>,
+  ): Promise<LabSlot> {
+    const updatedLabSlot = await this.labSlotModel
+      .findByIdAndUpdate(id, updateLabSlotDto, { new: true })
+      .exec();
     if (!updatedLabSlot) {
       throw new NotFoundException(`LabSlot with ID ${id} not found`);
     }

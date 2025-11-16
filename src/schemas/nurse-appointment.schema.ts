@@ -3,7 +3,11 @@ import { Document } from 'mongoose';
 
 export type NurseServiceType = 'homeCare' | 'followUp' | 'specialty';
 
-export type NurseAppointmentStatus = 'scheduled' | 'inProgress' | 'completed' | 'cancelled';
+export type NurseAppointmentStatus =
+  | 'scheduled'
+  | 'inProgress'
+  | 'completed'
+  | 'cancelled';
 
 export type NurseAppointmentDocument = NurseAppointment & Document;
 
@@ -24,11 +28,15 @@ export class NurseAppointment {
   @Prop({ required: true })
   time: string;
 
-  @Prop({ required: true, enum: ['scheduled', 'inProgress', 'completed', 'cancelled'] })
+  @Prop({
+    required: true,
+    enum: ['scheduled', 'inProgress', 'completed', 'cancelled'],
+  })
   status: NurseAppointmentStatus;
 
   @Prop({ required: true })
   statusLabel: string;
 }
 
-export const NurseAppointmentSchema = SchemaFactory.createForClass(NurseAppointment);
+export const NurseAppointmentSchema =
+  SchemaFactory.createForClass(NurseAppointment);

@@ -21,4 +21,5 @@ export class DoctorTimeSlot {
   isAvailable: boolean;
 }
 
-export const DoctorTimeSlotSchema = SchemaFactory.createForClass(DoctorTimeSlot);
+export const DoctorTimeSlotSchema =
+  SchemaFactory.createForClass(DoctorTimeSlot);

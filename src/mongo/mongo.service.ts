@@ -34,7 +34,9 @@ export class MongoService {
   // User methods
   async createUser(userData: CreateUserDto): Promise<User> {
     // Check if user with this email already exists
-    const existingUser = await this.userModel.findOne({ email: userData.email }).exec();
+    const existingUser = await this.userModel
+      .findOne({ email: userData.email })
+      .exec();
     if (existingUser) {
       throw new Error('User with this email already exists');
     }
@@ -85,9 +87,14 @@ export class MongoService {
   }
 
   async loginUser(loginData: LoginDto): Promise<User | null> {
-    const user = await this.userModel.findOne({ email: loginData.email }).exec();
+    const user = await this.userModel
+      .findOne({ email: loginData.email })
+      .exec();
     if (!user) return null;
-    const isPasswordValid = await bcrypt.compare(loginData.password, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      loginData.password,
+      user.password,
+    );
     if (!isPasswordValid) return null;
     const { password, ...userWithoutPassword } = user.toObject();
     return {
@@ -99,7 +106,10 @@ export class MongoService {
   // Nurse methods
   async createNurse(nurseData: CreateNurseDto): Promise<Nurse> {
     const hashedPassword = await bcrypt.hash(nurseData.password, 10);
-    const nurse = new this.nurseModel({ ...nurseData, password: hashedPassword });
+    const nurse = new this.nurseModel({
+      ...nurseData,
+      password: hashedPassword,
+    });
     const savedNurse = await nurse.save();
     return {
       id: (savedNurse._id as any).toString(),
@@ -116,9 +126,14 @@ export class MongoService {
   }
 
   async loginNurse(loginData: LoginDto): Promise<Nurse | null> {
-    const nurse = await this.nurseModel.findOne({ email: loginData.email }).exec();
+    const nurse = await this.nurseModel
+      .findOne({ email: loginData.email })
+      .exec();
     if (!nurse) return null;
-    const isPasswordValid = await bcrypt.compare(loginData.password, nurse.password);
+    const isPasswordValid = await bcrypt.compare(
+      loginData.password,
+      nurse.password,
+    );
     if (!isPasswordValid) return null;
     const { password, ...nurseWithoutPassword } = nurse.toObject();
     return {
@@ -130,7 +145,10 @@ export class MongoService {
   // Authorized methods
   async createAuthorized(authData: CreateAuthorizedDto): Promise<Authorized> {
     const hashedPassword = await bcrypt.hash(authData.password, 10);
-    const authorized = new this.authorizedModel({ ...authData, password: hashedPassword });
+    const authorized = new this.authorizedModel({
+      ...authData,
+      password: hashedPassword,
+    });
     const savedAuthorized = await authorized.save();
     return {
       id: (savedAuthorized._id as any).toString(),
@@ -139,9 +157,14 @@ export class MongoService {
   }
 
   async loginAuthorized(loginData: LoginDto): Promise<Authorized | null> {
-    const authorized = await this.authorizedModel.findOne({ email: loginData.email }).exec();
+    const authorized = await this.authorizedModel
+      .findOne({ email: loginData.email })
+      .exec();
     if (!authorized) return null;
-    const isPasswordValid = await bcrypt.compare(loginData.password, authorized.password);
+    const isPasswordValid = await bcrypt.compare(
+      loginData.password,
+      authorized.password,
+    );
     if (!isPasswordValid) return null;
     const { password, ...authorizedWithoutPassword } = authorized.toObject();
     return {

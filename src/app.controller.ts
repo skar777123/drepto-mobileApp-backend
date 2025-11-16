@@ -24,7 +24,7 @@ import type {
   appointmentDto,
 } from './interfaces/user.interface';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import client from 'prom-client'
+import client from 'prom-client';
 
 @UseInterceptors(CacheInterceptor)
 @Controller()
@@ -47,12 +47,17 @@ export class AppController {
   }
 
   @Post('user')
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<User | { success: boolean; message: string }> {
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<User | { success: boolean; message: string }> {
     try {
       return await this.mongoService.createUser(createUserDto);
     } catch (error) {
       if (error.message === 'User with this email already exists') {
-        return { success: false, message: 'User with this email already exists' };
+        return {
+          success: false,
+          message: 'User with this email already exists',
+        };
       }
       throw error;
     }

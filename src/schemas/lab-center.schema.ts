@@ -19,7 +19,11 @@ export class LabCenter {
   @Prop({ required: true })
   rating: number;
 
-  @Prop({ required: true, type: [String], enum: ['blood', 'imaging', 'cardio', 'other'] })
+  @Prop({
+    required: true,
+    type: [String],
+    enum: ['blood', 'imaging', 'cardio', 'other'],
+  })
   categories: LabCategory[];
 
   @Prop({ required: true })

@@ -6,7 +6,8 @@ import { LabCenter, LabCenterDocument } from '../schemas/lab-center.schema';
 @Injectable()
 export class LabCenterService {
   constructor(
-    @InjectModel(LabCenter.name) private labCenterModel: Model<LabCenterDocument>,
+    @InjectModel(LabCenter.name)
+    private labCenterModel: Model<LabCenterDocument>,
   ) {}
 
   async create(createLabCenterDto: Partial<LabCenter>): Promise<LabCenter> {
@@ -26,8 +27,13 @@ export class LabCenterService {
     return labCenter;
   }
 
-  async update(id: string, updateLabCenterDto: Partial<LabCenter>): Promise<LabCenter> {
-    const updatedLabCenter = await this.labCenterModel.findByIdAndUpdate(id, updateLabCenterDto, { new: true }).exec();
+  async update(
+    id: string,
+    updateLabCenterDto: Partial<LabCenter>,
+  ): Promise<LabCenter> {
+    const updatedLabCenter = await this.labCenterModel
+      .findByIdAndUpdate(id, updateLabCenterDto, { new: true })
+      .exec();
     if (!updatedLabCenter) {
       throw new NotFoundException(`LabCenter with ID ${id} not found`);
     }
@@ -35,7 +41,9 @@ export class LabCenterService {
   }
 
   async remove(id: string): Promise<LabCenter> {
-    const deletedLabCenter = await this.labCenterModel.findByIdAndDelete(id).exec();
+    const deletedLabCenter = await this.labCenterModel
+      .findByIdAndDelete(id)
+      .exec();
     if (!deletedLabCenter) {
       throw new NotFoundException(`LabCenter with ID ${id} not found`);
     }

@@ -1,7 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type LabTestStatus = 'scheduled' | 'inProgress' | 'completed' | 'cancelled';
+export type LabTestStatus =
+  | 'scheduled'
+  | 'inProgress'
+  | 'completed'
+  | 'cancelled';
 
 export type LabTestBookingDocument = LabTestBooking & Document;
 
@@ -28,7 +32,10 @@ export class LabTestBooking {
   @Prop({ required: true })
   time: string;
 
-  @Prop({ required: true, enum: ['scheduled', 'inProgress', 'completed', 'cancelled'] })
+  @Prop({
+    required: true,
+    enum: ['scheduled', 'inProgress', 'completed', 'cancelled'],
+  })
   status: LabTestStatus;
 
   @Prop({ required: true })
@@ -41,4 +48,5 @@ export class LabTestBooking {
   requestAttached: boolean;
 }
 
-export const LabTestBookingSchema = SchemaFactory.createForClass(LabTestBooking);
+export const LabTestBookingSchema =
+  SchemaFactory.createForClass(LabTestBooking);

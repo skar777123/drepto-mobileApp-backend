@@ -1,13 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { DoctorTimeSlotService } from './doctor-timeslot.service';
 import { DoctorTimeSlot } from '../schemas/doctor-timeslot.schema';
+import {
+  CreateDoctorTimeSlotDto,
+  UpdateDoctorTimeSlotDto,
+} from '../dto/doctor-timeslot.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('doctor-timeslot')
+@UseGuards(AuthGuard)
 export class DoctorTimeSlotController {
   constructor(private readonly doctorTimeSlotService: DoctorTimeSlotService) {}
 
   @Post()
-  create(@Body() createDoctorTimeSlotDto: Partial<DoctorTimeSlot>) {
+  create(@Body() createDoctorTimeSlotDto: CreateDoctorTimeSlotDto) {
     return this.doctorTimeSlotService.create(createDoctorTimeSlotDto);
   }
 
@@ -22,7 +37,10 @@ export class DoctorTimeSlotController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDoctorTimeSlotDto: Partial<DoctorTimeSlot>) {
+  update(
+    @Param('id') id: string,
+    @Body() updateDoctorTimeSlotDto: UpdateDoctorTimeSlotDto,
+  ) {
     return this.doctorTimeSlotService.update(id, updateDoctorTimeSlotDto);
   }
 

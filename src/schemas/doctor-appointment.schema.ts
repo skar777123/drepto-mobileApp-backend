@@ -32,4 +32,5 @@ export class DoctorAppointment {
   reminderText: string;
 }
 
-export const DoctorAppointmentSchema = SchemaFactory.createForClass(DoctorAppointment);
+export const DoctorAppointmentSchema =
+  SchemaFactory.createForClass(DoctorAppointment);

@@ -52,7 +52,11 @@ export class Nurse {
   @Prop({ required: true })
   rating: number;
 
-  @Prop({ required: true, type: [String], enum: ['homeCare', 'followUp', 'specialty'] })
+  @Prop({
+    required: true,
+    type: [String],
+    enum: ['homeCare', 'followUp', 'specialty'],
+  })
   serviceTypes: NurseServiceType[];
 }
 
