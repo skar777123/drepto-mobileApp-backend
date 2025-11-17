@@ -66,24 +66,7 @@ export class AppController {
     return this.mongoService.getAllUsers();
   }
 
-  @Get('user/:id')
-  async getUser(@Param('id') id: string): Promise<User | null> {
-    return this.mongoService.getUser(id);
-  }
 
-  @Patch('user/:id')
-  async updateUser(
-    @Param('id') id: string,
-    @Body() updates: Partial<User>,
-  ): Promise<User | null> {
-    return this.mongoService.updateUser(id, updates);
-  }
-
-  @Delete('user/:id')
-  async deleteUser(@Param('id') id: string): Promise<{ deleted: boolean }> {
-    const deleted = await this.mongoService.deleteUser(id);
-    return { deleted };
-  }
 
   @Post('appointments')
   async bookAppointment(
