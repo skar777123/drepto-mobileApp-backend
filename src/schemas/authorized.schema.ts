@@ -11,17 +11,14 @@ export class Authorized {
   @Prop({ required: true })
   lastName: string;
 
-  @Prop({ required: true, unique: true })
-  email: string;
+  // @Prop({ required: true, unique: true })
+  // email: string;
 
-  @Prop({ required: true })
-  mobileNumber: string;
+  @Prop({ required: true , unique: true  })
+  mobileNumber: Number;
 
-  @Prop({ required: true })
-  dateOfBirth: string;
-
-  @Prop({ required: true })
-  address: string;
+  // @Prop({ required: true })
+  // dateOfBirth: string;
 
   @Prop({ required: true })
   gender: string;
@@ -33,7 +30,13 @@ export class Authorized {
   roleTitle: string;
 
   @Prop({ required: true })
-  password: string;
+  otp: Number;
+
+  @Prop()
+  otpExpiry: Date;
+
+  // @Prop({ required: true })
+  // password: string;
 }
 
 export const AuthorizedSchema = SchemaFactory.createForClass(Authorized);

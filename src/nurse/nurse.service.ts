@@ -1,13 +1,107 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Nurse, NurseDocument } from '../schemas/nurse.schema';
+import { Nurse, CreateNurseDto } from '../interfaces/user.interface';
+import { NurseDocument } from '../schemas/nurse.schema';
+import { OtpService } from '../otp/otp.service';
 
 @Injectable()
 export class NurseService {
   constructor(
-    @InjectModel(Nurse.name) private nurseModel: Model<NurseDocument>,
+    @InjectModel('Nurse') private nurseModel: Model<NurseDocument>,
+    private otpService: OtpService,
   ) {}
+
+  async requestOtp(mobileNumber: Number): Promise<{ success: boolean; message: string }> {
+    const existingNurse = await this.nurseModel
+      .findOne({ mobileNumber })
+      .exec();
+
+    if (existingNurse) {
+      // Nurse exists, generate OTP for login
+      const otp = this.otpService.generateOtp();
+      const otpExpiry = this.otpService.getOtpExpiry();
+      await this.nurseModel.updateOne(
+        { mobileNumber },
+        { otp, otpExpiry }
+      );
+      // TODO: Send OTP via SMS
+      return { success: true, message: 'OTP sent for login' };
+    } else {
+      // Nurse does not exist, generate OTP for registration
+      const otp = this.otpService.generateOtp();
+      const otpExpiry = this.otpService.getOtpExpiry();
+      const tempNurse = new this.nurseModel({
+        mobileNumber,
+        otp,
+        otpExpiry,
+        firstName: '', // Placeholder
+        lastName: '',
+        dateOfBirth: '',
+        gender: '',
+        role: 'nurse',
+        licenseNumber: '',
+        specification: '',
+        availiability: '',
+        isAvailable: false,
+        experienceYears: 0,
+        serviceTypes: [],
+      });
+      await tempNurse.save();
+      // TODO: Send OTP via SMS
+      return { success: true, message: 'OTP sent for registration' };
+    }
+  }
+
+  async verifyOtp(mobileNumber: Number, otp: number): Promise<{ success: boolean; message: string; nurse?: Nurse }> {
+    const nurse = await this.nurseModel
+      .findOne({ mobileNumber })
+      .exec();
+
+    if (!nurse) {
+      return { success: false, message: 'Nurse not found' };
+    }
+
+    if (this.otpService.isOtpExpired(nurse.otpExpiry)) {
+      return { success: false, message: 'OTP expired' };
+    }
+
+    if (nurse.otp !== otp) {
+      return { success: false, message: 'Invalid OTP' };
+    }
+
+    // Clear OTP
+    await this.nurseModel.updateOne(
+      { mobileNumber },
+      { otp: null, otpExpiry: null }
+    );
+
+    const nurseObj = {
+      id: (nurse._id as any).toString(),
+      ...nurse.toObject(),
+    };
+
+    if (nurse.firstName) {
+      // Existing nurse, return for login
+      return { success: true, message: 'Login successful', nurse: nurseObj };
+    } else {
+      // New nurse, return for registration completion
+      return { success: true, message: 'OTP verified, proceed to complete registration', nurse: nurseObj };
+    }
+  }
+
+  async completeRegistration(nurseId: string, nurseData: CreateNurseDto): Promise<Nurse> {
+    const nurse = await this.nurseModel
+      .findByIdAndUpdate(nurseId, nurseData, { new: true })
+      .exec();
+    if (!nurse) {
+      throw new Error('Nurse not found');
+    }
+    return {
+      id: (nurse._id as any).toString(),
+      ...nurse.toObject(),
+    };
+  }
 
   async create(createNurseDto: Partial<Nurse>): Promise<Nurse> {
     const createdNurse = new this.nurseModel(createNurseDto);

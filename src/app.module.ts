@@ -17,6 +17,8 @@ import { NurseAppointmentModule } from './nurse-appointment/nurse-appointment.mo
 import { LabCenterModule } from './lab-center/lab-center.module';
 import { LabSlotModule } from './lab-slot/lab-slot.module';
 import { LabTestBookingModule } from './lab-test-booking/lab-test-booking.module';
+import { UserModule } from './user/user.module';
+import { AuthorizedModule } from './authorized/authorized.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { LabTestBookingModule } from './lab-test-booking/lab-test-booking.module
       ttl: 120 * 10000,
       store: redisStore,
     }),
+    UserModule,
+    AuthorizedModule,
     DoctorModule,
     DoctorTimeSlotModule,
     DoctorAppointmentModule,

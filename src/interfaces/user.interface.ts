@@ -2,14 +2,13 @@ export interface User {
   id?: string;
   firstName: string;
   lastName: string;
-  email: string;
-  mobileNumber: string;
+  mobileNumber: Number;
   dateOfBirth: string;
   gender: string;
-  address: string;
   role: string;
   medicalHistory: string;
-  password?: string;
+  otp: Number;
+  otpExpiry?: Date;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -18,19 +17,17 @@ export interface Nurse {
   id?: string;
   firstName: string;
   lastName: string;
-  email: string;
-  mobileNumber: string;
+  mobileNumber: Number;
   gender: string;
   dateOfBirth: string;
-  address: string;
   licenseNumber: string;
   role: string;
   specification: string;
   availiability: string;
   isAvailable: boolean;
-  password?: string;
   experienceYears: number;
-  rating: number;
+  otp: Number;
+  otpExpiry?: Date;
   serviceTypes: string[];
   createdAt?: string;
   updatedAt?: string;
@@ -40,14 +37,12 @@ export interface Authorized {
   id?: string;
   firstName: string;
   lastName: string;
-  email: string;
-  mobileNumber: string;
-  dateOfBirth: string;
-  address: string;
+  mobileNumber: Number;
   role: string;
   gender: string;
   roleTitle: string;
-  password?: string;
+  otp: Number;
+  otpExpiry?: Date;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -55,46 +50,49 @@ export interface Authorized {
 export interface CreateUserDto {
   firstName: string;
   lastName: string;
-  email: string;
-  mobileNumber: string;
+  mobileNumber: Number;
   gender: string;
   role: string;
   dateOfBirth: string;
-  address: string;
   medicalHistory: string;
-  password: string;
 }
 
 export interface CreateNurseDto {
   firstName: string;
   lastName: string;
-  email: string;
-  mobileNumber: string;
+  mobileNumber: Number;
   dateOfBirth: string;
-  address: string;
   gender: string;
   role: string;
   licenseNumber: string;
   specification: string;
   availiability: string;
   isAvailable: boolean;
-  password: string;
   experienceYears: number;
-  rating: number;
   serviceTypes: string[];
 }
 
 export interface CreateAuthorizedDto {
   firstName: string;
   lastName: string;
-  email: string;
   gender: string;
   role: string;
-  mobileNumber: string;
-  dateOfBirth: string;
-  address: string;
+  mobileNumber: Number;
   roleTitle: string;
-  password: string;
+}
+
+export interface RequestOtpDto {
+  mobileNumber: number;
+}
+
+export interface VerifyOtpDto {
+  mobileNumber: number;
+  otp: number;
+}
+
+export interface LoginDto {
+  mobileNumber: Number;
+  otp: Number;
 }
 
 export interface appointmentDto {
@@ -113,9 +111,4 @@ export interface appointmentDto {
   amount: number;
   appointmentId: string;
   status: string;
-}
-
-export interface LoginDto {
-  email: string;
-  password: string;
 }
