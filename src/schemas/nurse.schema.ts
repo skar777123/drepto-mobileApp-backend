@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type NurseServiceType = 'homeCare' | 'followUp' | 'specialty';
+export type NurseServiceType = 'general' | 'icu' | 'surgical';
 
 export type NurseDocument = Nurse & Document;
 
@@ -13,11 +13,11 @@ export class Nurse {
   @Prop({ required: true })
   lastName: string;
 
-  @Prop({ required: true, unique: true })
-  email: string;
-
+  // @Prop({ required: true, unique: true })
+  // email: string;
+ 
   @Prop({ required: true })
-  mobileNumber: string;
+  mobileNumber: Number;
 
   @Prop({ required: true })
   gender: string;
@@ -25,11 +25,13 @@ export class Nurse {
   @Prop({ required: true })
   dateOfBirth: string;
 
-  @Prop({ required: true })
-  address: string;
+  // @Prop({ required: true })
+  // address: string;
 
   @Prop({ required: true })
   licenseNumber: string;
+
+  //Upload
 
   @Prop({ required: true })
   role: string;
@@ -43,19 +45,25 @@ export class Nurse {
   @Prop({ required: true })
   isAvailable: boolean;
 
-  @Prop({ required: true })
-  password: string;
+  // @Prop({ required: true })
+  // password: string;
 
   @Prop({ required: true })
   experienceYears: number;
 
+  // @Prop({ required: true })
+  // rating: number;
+
   @Prop({ required: true })
-  rating: number;
+  otp: Number;
+
+  @Prop()
+  otpExpiry: Date;
 
   @Prop({
     required: true,
     type: [String],
-    enum: ['homeCare', 'followUp', 'specialty'],
+    enum: ['general', 'icu', 'surgical'],
   })
   serviceTypes: NurseServiceType[];
 }

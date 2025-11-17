@@ -46,87 +46,20 @@ export class AppController {
     }
   }
 
-  @Post('user')
-  async createUser(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<User | { success: boolean; message: string }> {
-    try {
-      return await this.mongoService.createUser(createUserDto);
-    } catch (error) {
-      if (error.message === 'User with this email already exists') {
-        return {
-          success: false,
-          message: 'User with this email already exists',
-        };
-      }
-      throw error;
-    }
-  }
+  // Deprecated: Use /user/complete-registration/:userId for registration
 
-  @Post('nurse-mongo')
-  async createNurse(@Body() createNurseDto: CreateNurseDto): Promise<Nurse> {
-    return this.mongoService.createNurse(createNurseDto);
-  }
+  // Deprecated: Use /nurse/complete-registration/:nurseId for registration
 
   @Get('Allnurse-mongo')
   async getAllNurse(): Promise<Nurse[]> {
     return this.mongoService.getAllNurse();
   }
 
-  @Post('authorized')
-  async createAuth(
-    @Body() createAuthDto: CreateAuthorizedDto,
-  ): Promise<Authorized> {
-    return this.mongoService.createAuthorized(createAuthDto);
-  }
+  // Deprecated: Use /authorized/complete-registration/:authorizedId for registration
 
-  @Post('login/:role')
-  async login(
-    @Body() loginData: LoginDto,
-    @Param('role') role: string,
-  ): Promise<any> {
-    let userData: any = null;
+  // Deprecated: Use role-specific /verify-otp endpoints for login
 
-    if (role === 'user') {
-      userData = await this.mongoService.loginUser(loginData);
-    } else if (role === 'nurse') {
-      userData = await this.mongoService.loginNurse(loginData);
-    } else if (role === 'authorized') {
-      userData = await this.mongoService.loginAuthorized(loginData);
-    } else {
-      return { success: false, message: 'Invalid role specified' };
-    }
-
-    if (!userData) {
-      return { success: false, message: 'Invalid credentials' };
-    }
-
-    const token = await this.authService.generateToken({
-      id: userData.id,
-      email: userData.email,
-      role: userData.role,
-      iat: Math.floor(Date.now() / 1000),
-    });
-
-    return { success: true, token, user: userData };
-  }
-
-  @Post('nurse-mongo-login')
-  async loginNurseMongo(@Body() loginData: LoginDto): Promise<any> {
-    const userData = await this.mongoService.loginNurse(loginData);
-    if (!userData) {
-      return { success: false, message: 'Invalid credentials' };
-    }
-
-    const token = await this.authService.generateToken({
-      id: userData.id,
-      email: userData.email,
-      role: userData.role,
-      iat: Math.floor(Date.now() / 1000),
-    });
-
-    return { success: true, token, user: userData };
-  }
+  // Deprecated: Use /nurse/verify-otp for login
 
   @Get('Allusers')
   async getAllUsers(): Promise<User[]> {

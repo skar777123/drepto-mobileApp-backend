@@ -12,9 +12,9 @@ import {
 } from 'class-validator';
 
 export enum NurseServiceType {
-  HOMECARE = 'homeCare',
-  FOLLOWUP = 'followUp',
-  SPECIALTY = 'specialty',
+  GENERAL = 'general',
+  ICU = 'icu',
+  SURGICAL = 'surgical',
 }
 
 export class CreateNurseDto {
@@ -26,12 +26,8 @@ export class CreateNurseDto {
   @IsNotEmpty()
   lastName: string;
 
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  mobileNumber: string;
+  @IsNumber()
+  mobileNumber: Number;
 
   @IsString()
   @IsNotEmpty()
@@ -40,10 +36,6 @@ export class CreateNurseDto {
   @IsString()
   @IsNotEmpty()
   dateOfBirth: string;
-
-  @IsString()
-  @IsNotEmpty()
-  address: string;
 
   @IsString()
   @IsNotEmpty()
@@ -64,18 +56,11 @@ export class CreateNurseDto {
   @IsBoolean()
   isAvailable: boolean;
 
-  @IsString()
-  @IsNotEmpty()
-  password: string;
-
   @IsNumber()
   @Min(0)
   experienceYears: number;
 
-  @IsNumber()
-  @Min(0)
-  @Max(5)
-  rating: number;
+  // OTP is handled separately
 
   @IsArray()
   @IsEnum(NurseServiceType, { each: true })
@@ -94,13 +79,8 @@ export class UpdateNurseDto {
   lastName?: string;
 
   @IsOptional()
-  @IsEmail()
-  email?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  mobileNumber?: string;
+  @IsNumber()
+  mobileNumber?: Number;
 
   @IsOptional()
   @IsString()
@@ -111,11 +91,6 @@ export class UpdateNurseDto {
   @IsString()
   @IsNotEmpty()
   dateOfBirth?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  address?: string;
 
   @IsOptional()
   @IsString()
@@ -142,20 +117,11 @@ export class UpdateNurseDto {
   isAvailable?: boolean;
 
   @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  password?: string;
-
-  @IsOptional()
   @IsNumber()
   @Min(0)
   experienceYears?: number;
 
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Max(5)
-  rating?: number;
+  // OTP is handled separately
 
   @IsOptional()
   @IsArray()

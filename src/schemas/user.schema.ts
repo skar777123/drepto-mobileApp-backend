@@ -11,11 +11,11 @@ export class User {
   @Prop({ required: true })
   lastName: string;
 
-  @Prop({ required: true, unique: true })
-  email: string;
+  // @Prop({ required: true, unique: true })
+  // email: string;
 
-  @Prop({ required: true })
-  mobileNumber: string;
+  @Prop({ required: true, unique: true })
+  mobileNumber: Number;
 
   @Prop({ required: true })
   dateOfBirth: string;
@@ -26,14 +26,20 @@ export class User {
   @Prop({ required: true })
   role: string;
 
-  @Prop({ required: true })
-  address: string;
+  // @Prop({ required: true })
+  // address: string;
 
   @Prop({ required: true })
   medicalHistory: string;
 
   @Prop({ required: true })
-  password: string;
+  otp: Number;
+
+  @Prop()
+  otpExpiry: Date;
+
+  // @Prop({ required: true })
+  // password: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

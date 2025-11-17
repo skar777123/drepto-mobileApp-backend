@@ -4,9 +4,11 @@ import { Nurse, NurseSchema } from '../schemas/nurse.schema';
 import { NurseService } from './nurse.service';
 import { NurseController } from './nurse.controller';
 import { AuthModule } from '../auth/auth.module';
+import { OtpModule } from '../otp/otp.module';
 
 @Module({
   imports: [
+    OtpModule,
     MongooseModule.forFeature([{ name: Nurse.name, schema: NurseSchema }]),
     AuthModule,
   ],
