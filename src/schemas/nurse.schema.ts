@@ -7,54 +7,54 @@ export type NurseDocument = Nurse & Document;
 
 @Schema({ timestamps: true })
 export class Nurse {
-  @Prop({ required: true })
+  @Prop()
   firstName: string;
 
-  @Prop({ required: true })
+  @Prop()
   lastName: string;
 
   // @Prop({ required: true, unique: true })
   // email: string;
- 
+
   @Prop({ required: true })
   mobileNumber: Number;
 
-  @Prop({ required: true })
+  @Prop()
   gender: string;
 
-  @Prop({ required: true })
+  @Prop()
   dateOfBirth: string;
 
   // @Prop({ required: true })
   // address: string;
 
-  @Prop({ required: true })
+  @Prop()
   licenseNumber: string;
 
   //Upload
 
-  @Prop({ required: true })
+  @Prop()
   role: string;
 
-  @Prop({ required: true })
+  @Prop()
   specification: string;
 
-  @Prop({ required: true })
+  @Prop()
   availiability: string;
 
-  @Prop({ required: true })
+  @Prop()
   isAvailable: boolean;
 
   // @Prop({ required: true })
   // password: string;
 
-  @Prop({ required: true })
+  @Prop()
   experienceYears: number;
 
   // @Prop({ required: true })
   // rating: number;
 
-  @Prop({ required: true })
+  @Prop()
   otp: Number;
 
   @Prop()

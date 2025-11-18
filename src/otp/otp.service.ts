@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class OtpService {
   generateOtp(): number {
-    return Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
+    return crypto.randomInt(100000, 1000000); // 6-digit OTP
   }
 
   isOtpExpired(expiry: Date): boolean {

@@ -90,6 +90,27 @@ export interface VerifyOtpDto {
   otp: number;
 }
 
+export interface VerifyOtpResponse {
+  success: boolean;
+  message: string;
+  user?: User;
+  token?: string;
+}
+
+export interface VerifyOtpNurseResponse {
+  success: boolean;
+  message: string;
+  nurse?: Nurse;
+  token?: string;
+}
+
+export interface VerifyOtpAuthorizedResponse {
+  success: boolean;
+  message: string;
+  authorized?: Authorized;
+  token?: string;
+}
+
 export interface LoginDto {
   mobileNumber: Number;
   otp: Number;

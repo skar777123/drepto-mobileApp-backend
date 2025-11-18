@@ -1,18 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, CreateUserDto } from '../interfaces/user.interface';
+// import { TwilioService } from 'nestjs-twilio';
+import { User, CreateUserDto, VerifyOtpResponse } from '../interfaces/user.interface';
 import { UserDocument } from '../schemas/user.schema';
 import { OtpService } from '../otp/otp.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel('User') private userModel: Model<UserDocument>,
     private otpService: OtpService,
+    // private readonly twilioService: TwilioService,
+    private authService: AuthService,
   ) {}
 
-  async requestOtp(mobileNumber: Number): Promise<{ success: boolean; message: string }> {
+  async requestOtp(mobileNumber: Number): Promise<{ success: boolean; message: string; otp?: number }> {
     const existingUser = await this.userModel
       .findOne({ mobileNumber })
       .exec();
@@ -25,14 +29,24 @@ export class UserService {
         { mobileNumber },
         { otp, otpExpiry }
       );
-      // TODO: Send OTP via SMS
-      return { success: true, message: 'OTP sent for login' };
+      // try {
+      //   await this.twilioService.client.messages.create({
+      //     body: `Your OTP is: ${otp}`,
+      //     from: process.env.TWILIO_PHONE_NUMBER,
+      //     to: `+91${mobileNumber}`,
+      //   });
+      //   return { success: true, message: 'OTP sent for login' };
+      // } catch (error) {
+      //   console.error('Error sending OTP:', error);
+      //   return { success: false, message: 'Failed to send OTP' };
+      // }
+      return { success: true, message: 'OTP generated for login', otp };
     } else {
       // User does not exist, generate OTP for registration
       const otp = this.otpService.generateOtp();
       const otpExpiry = this.otpService.getOtpExpiry();
       const tempUser = new this.userModel({
-        mobileNumber,
+        mobileNumber: mobileNumber,
         otp,
         otpExpiry,
         firstName: '', // Placeholder
@@ -43,12 +57,22 @@ export class UserService {
         medicalHistory: '',
       });
       await tempUser.save();
-      // TODO: Send OTP via SMS
-      return { success: true, message: 'OTP sent for registration' };
+      // try {
+      //   await this.twilioService.client.messages.create({
+      //     body: `Your OTP is: ${otp}`,
+      //     from: process.env.TWILIO_PHONE_NUMBER,
+      //     to: `+91${mobileNumber}`,
+      //   });
+      //   return { success: true, message: 'OTP sent for registration' };
+      // } catch (error) {
+      //   console.error('Error sending OTP:', error);
+      //   return { success: false, message: 'Failed to send OTP' };
+      // }
+      return { success: true, message: 'OTP generated for registration', otp };
     }
   }
 
-  async verifyOtp(mobileNumber: Number, otp: number): Promise<{ success: boolean; message: string; user?: User }> {
+  async verifyOtp(mobileNumber: Number, otp: number): Promise<VerifyOtpResponse> {
     const user = await this.userModel
       .findOne({ mobileNumber })
       .exec();
@@ -77,10 +101,11 @@ export class UserService {
     };
 
     if (user.firstName) {
-      // Existing user, return for login
-      return { success: true, message: 'Login successful', user: userObj };
+      // Existing user, return for login with token
+      const token = await this.authService.generateToken({ id: userObj.id, role: userObj.role });
+      return { success: true, message: 'Login successful', user: userObj, token };
     } else {
-      // New user, return for registration completion
+      // New user, return for registration completion without token
       return { success: true, message: 'OTP verified, proceed to complete registration', user: userObj };
     }
   }

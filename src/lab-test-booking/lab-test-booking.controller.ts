@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
 } from '@nestjs/common';
 import { LabTestBookingService } from './lab-test-booking.service';
 import { LabTestBooking } from '../schemas/lab-test-booking.schema';
@@ -14,10 +13,8 @@ import {
   CreateLabTestBookingDto,
   UpdateLabTestBookingDto,
 } from '../dto/lab-test-booking.dto';
-import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('lab-test-booking')
-@UseGuards(AuthGuard)
 export class LabTestBookingController {
   constructor(private readonly labTestBookingService: LabTestBookingService) {}
 

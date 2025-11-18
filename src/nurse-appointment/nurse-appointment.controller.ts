@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
 } from '@nestjs/common';
 import { NurseAppointmentService } from './nurse-appointment.service';
 import { NurseAppointment } from '../schemas/nurse-appointment.schema';
@@ -14,10 +13,8 @@ import {
   CreateNurseAppointmentDto,
   UpdateNurseAppointmentDto,
 } from '../dto/nurse-appointment.dto';
-import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('nurse-appointment')
-@UseGuards(AuthGuard)
 export class NurseAppointmentController {
   constructor(
     private readonly nurseAppointmentService: NurseAppointmentService,

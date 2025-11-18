@@ -1,18 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Nurse, CreateNurseDto } from '../interfaces/user.interface';
+// import { TwilioService } from 'nestjs-twilio';
+import { Nurse, CreateNurseDto, VerifyOtpNurseResponse } from '../interfaces/user.interface';
 import { NurseDocument } from '../schemas/nurse.schema';
 import { OtpService } from '../otp/otp.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class NurseService {
   constructor(
     @InjectModel('Nurse') private nurseModel: Model<NurseDocument>,
     private otpService: OtpService,
+    // private readonly twilioService: TwilioService,
+    private authService: AuthService,
   ) {}
 
-  async requestOtp(mobileNumber: Number): Promise<{ success: boolean; message: string }> {
+  async requestOtp(mobileNumber: Number): Promise<{ success: boolean; message: string; otp?: number }> {
     const existingNurse = await this.nurseModel
       .findOne({ mobileNumber })
       .exec();
@@ -25,8 +29,18 @@ export class NurseService {
         { mobileNumber },
         { otp, otpExpiry }
       );
-      // TODO: Send OTP via SMS
-      return { success: true, message: 'OTP sent for login' };
+      // try {
+      //   await this.twilioService.client.messages.create({
+      //     body: `Your OTP is: ${otp}`,
+      //     from: process.env.TWILIO_PHONE_NUMBER,
+      //     to: `+${mobileNumber}`,
+      //   });
+      //   return { success: true, message: 'OTP sent for login' };
+      // } catch (error) {
+      //   console.error('Error sending OTP:', error);
+      //   return { success: false, message: 'Failed to send OTP' };
+      // }
+      return { success: true, message: 'OTP generated for login', otp };
     } else {
       // Nurse does not exist, generate OTP for registration
       const otp = this.otpService.generateOtp();
@@ -48,12 +62,22 @@ export class NurseService {
         serviceTypes: [],
       });
       await tempNurse.save();
-      // TODO: Send OTP via SMS
-      return { success: true, message: 'OTP sent for registration' };
+      // try {
+      //   await this.twilioService.client.messages.create({
+      //     body: `Your OTP is: ${otp}`,
+      //     from: process.env.TWILIO_PHONE_NUMBER,
+      //     to: `+${mobileNumber}`,
+      //   });
+      //   return { success: true, message: 'OTP sent for registration' };
+      // } catch (error) {
+      //   console.error('Error sending OTP:', error);
+      //   return { success: false, message: 'Failed to send OTP' };
+      // }
+      return { success: true, message: 'OTP generated for registration', otp };
     }
   }
 
-  async verifyOtp(mobileNumber: Number, otp: number): Promise<{ success: boolean; message: string; nurse?: Nurse }> {
+  async verifyOtp(mobileNumber: Number, otp: number): Promise<VerifyOtpNurseResponse> {
     const nurse = await this.nurseModel
       .findOne({ mobileNumber })
       .exec();
@@ -82,10 +106,11 @@ export class NurseService {
     };
 
     if (nurse.firstName) {
-      // Existing nurse, return for login
-      return { success: true, message: 'Login successful', nurse: nurseObj };
+      // Existing nurse, return for login with token
+      const token = await this.authService.generateToken({ id: nurseObj.id, role: nurseObj.role });
+      return { success: true, message: 'Login successful', nurse: nurseObj, token };
     } else {
-      // New nurse, return for registration completion
+      // New nurse, return for registration completion without token
       return { success: true, message: 'OTP verified, proceed to complete registration', nurse: nurseObj };
     }
   }

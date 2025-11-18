@@ -5,10 +5,10 @@ export type AuthorizedDocument = Authorized & Document;
 
 @Schema({ timestamps: true })
 export class Authorized {
-  @Prop({ required: true })
+  @Prop()
   firstName: string;
 
-  @Prop({ required: true })
+  @Prop()
   lastName: string;
 
   // @Prop({ required: true, unique: true })
@@ -20,16 +20,16 @@ export class Authorized {
   // @Prop({ required: true })
   // dateOfBirth: string;
 
-  @Prop({ required: true })
+  @Prop()
   gender: string;
 
-  @Prop({ required: true })
+  @Prop()
   role: string;
 
-  @Prop({ required: true })
+  @Prop()
   roleTitle: string;
 
-  @Prop({ required: true })
+  @Prop()
   otp: Number;
 
   @Prop()

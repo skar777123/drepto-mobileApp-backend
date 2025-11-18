@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
 } from '@nestjs/common';
 import { NurseTimeSlotService } from './nurse-timeslot.service';
 import { NurseTimeSlot } from '../schemas/nurse-timeslot.schema';
@@ -14,10 +13,8 @@ import {
   CreateNurseTimeSlotDto,
   UpdateNurseTimeSlotDto,
 } from '../dto/nurse-timeslot.dto';
-import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('nurse-timeslot')
-@UseGuards(AuthGuard)
 export class NurseTimeSlotController {
   constructor(private readonly nurseTimeSlotService: NurseTimeSlotService) {}
 
