@@ -128,10 +128,10 @@ export class NurseService {
     };
   }
 
-  async create(createNurseDto: Partial<Nurse>): Promise<Nurse> {
-    const createdNurse = new this.nurseModel(createNurseDto);
-    return createdNurse.save();
-  }
+  // async create(createNurseDto: Partial<Nurse>): Promise<Nurse> {
+  //   const createdNurse = new this.nurseModel(createNurseDto);
+  //   return createdNurse.save();
+  // }
 
   async findAll(): Promise<Nurse[]> {
     return this.nurseModel.find().exec();

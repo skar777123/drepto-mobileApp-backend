@@ -43,11 +43,11 @@ export class NurseController {
     return this.nurseService.completeRegistration(nurseId, createNurseDto);
   }
 
-  @Post()
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  create(@Body() createNurseDto: CreateNurseDto) {
-    return this.nurseService.create(createNurseDto);
-  }
+  // @Post()
+  // @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  // create(@Body() createNurseDto: CreateNurseDto) {
+  //   return this.nurseService.create(createNurseDto);
+  // }
 
   @Get()
   findAll() {
