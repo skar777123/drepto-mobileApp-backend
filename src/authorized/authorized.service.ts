@@ -109,17 +109,19 @@ export class AuthorizedService {
     }
   }
 
-  async completeRegistration(authorizedId: string, authorizedData: CreateAuthorizedDto): Promise<Authorized> {
+  async completeRegistration(authorizedId: string, authorizedData: CreateAuthorizedDto): Promise<{ authorized: Authorized; token: string }> {
     const authorized = await this.authorizedModel
       .findByIdAndUpdate(authorizedId, authorizedData, { new: true })
       .exec();
     if (!authorized) {
       throw new NotFoundException('Authorized not found');
     }
-    return {
+    const authorizedObj = {
       id: (authorized._id as any).toString(),
       ...authorized.toObject(),
     };
+    const token = await this.authService.generateToken({ id: authorizedObj.id, role: authorizedObj.role });
+    return { authorized: authorizedObj, token };
   }
 
   async getAuthorized(authorizedId: string): Promise<Authorized | null> {

@@ -8,10 +8,12 @@ import {
   Delete,
   UsePipes,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import type { CreateUserDto, RequestOtpDto, VerifyOtpDto } from '../interfaces/user.interface';
 import { Public } from '../auth/public.decorator';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -38,24 +40,29 @@ export class UserController {
     @Param('userId') userId: string,
     @Body() createUserDto: CreateUserDto,
   ) {
-    return this.userService.completeRegistration(userId, createUserDto);
+    const result = await this.userService.completeRegistration(userId, createUserDto);
+    return result;
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.userService.getAllUsers();
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.getUser(id);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: Partial<CreateUserDto>) {
     return this.userService.updateUser(id, updateUserDto);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.deleteUser(id);

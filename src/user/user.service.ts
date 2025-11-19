@@ -110,17 +110,19 @@ export class UserService {
     }
   }
 
-  async completeRegistration(userId: string, userData: CreateUserDto): Promise<User> {
+  async completeRegistration(userId: string, userData: CreateUserDto): Promise<{ user: User; token: string }> {
     const user = await this.userModel
       .findByIdAndUpdate(userId, userData, { new: true })
       .exec();
     if (!user) {
       throw new Error('User not found');
     }
-    return {
+    const userObj = {
       id: (user._id as any).toString(),
       ...user.toObject(),
     };
+    const token = await this.authService.generateToken({ id: userObj.id, role: userObj.role });
+    return { user: userObj, token };
   }
 
   async getUser(userId: string): Promise<User | null> {

@@ -9,6 +9,7 @@ import {
   Patch,
   UseInterceptors,
   Header,
+  UseGuards,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MongoService } from './mongo/mongo.service';
@@ -25,6 +26,7 @@ import type {
 } from './interfaces/user.interface';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import client from 'prom-client';
+import { AuthGuard } from './auth/auth.guard';
 
 @UseInterceptors(CacheInterceptor)
 @Controller()
@@ -61,13 +63,13 @@ export class AppController {
 
   // Deprecated: Use /nurse/verify-otp for login
 
+  @UseGuards(AuthGuard)
   @Get('Allusers')
   async getAllUsers(): Promise<User[]> {
     return this.mongoService.getAllUsers();
   }
 
-
-
+  @UseGuards(AuthGuard)
   @Post('appointments')
   async bookAppointment(
     @Body() appointmentData: appointmentDto,
@@ -77,6 +79,7 @@ export class AppController {
     return { appointmentId };
   }
 
+  @UseGuards(AuthGuard)
   @Get('appointments/:userId')
   async getUserAppointments(@Param('userId') userId: string): Promise<any[]> {
     return this.mongoService.getUsersAppointment(userId);
