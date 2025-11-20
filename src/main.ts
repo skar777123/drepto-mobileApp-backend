@@ -13,7 +13,23 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
   const fastifyInstance = app.getHttpAdapter().getInstance();
-  fastifyInstance.register(require('@fastify/helmet'));
+  fastifyInstance.register(require('@fastify/helmet'), {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+      },
+    },
+    crossOriginOpenerPolicy: { policy: 'same-origin' },
+    crossOriginResourcePolicy: { policy: 'same-origin' },
+    originAgentCluster: true,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    hsts: { maxAge: 31536000 },
+    noSniff: true,
+    dnsPrefetchControl: { allow: false },
+    ieNoOpen: true,
+    frameguard: { action: 'deny' },
+    permittedCrossDomainPolicies: { permittedPolicies: 'none' },
+  });
 
   // CORS origins from environment
   const corsOrigins = process.env.CORS_ORIGINS
