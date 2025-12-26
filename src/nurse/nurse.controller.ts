@@ -13,13 +13,14 @@ import {
 import { NurseService } from './nurse.service';
 import { Nurse } from '../schemas/nurse.schema';
 import { CreateNurseDto, UpdateNurseDto } from '../dto/nurse.dto';
-import type { RequestOtpDto, VerifyOtpDto } from '../interfaces/user.interface';
+import { RequestOtpDto } from '../dto/request-otp.dto';
+import { VerifyOtpDto } from '../dto/verify-otp.dto';
 import { Public } from '../auth/public.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('nurse')
 export class NurseController {
-  constructor(private readonly nurseService: NurseService) {}
+  constructor(private readonly nurseService: NurseService) { }
 
   @Public()
   @Post('request-otp')

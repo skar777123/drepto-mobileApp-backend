@@ -11,17 +11,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthorizedService } from './authorized.service';
-import type {
-  CreateAuthorizedDto,
-  RequestOtpDto,
-  VerifyOtpDto,
-} from '../interfaces/user.interface';
+import { CreateAuthorizedDto } from '../dto/authorized.dto';
+import { RequestOtpDto } from '../dto/request-otp.dto';
+import { VerifyOtpDto } from '../dto/verify-otp.dto';
 import { Public } from '../auth/public.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('authorized')
 export class AuthorizedController {
-  constructor(private readonly authorizedService: AuthorizedService) {}
+  constructor(private readonly authorizedService: AuthorizedService) { }
 
   @Public()
   @Post('request-otp')
