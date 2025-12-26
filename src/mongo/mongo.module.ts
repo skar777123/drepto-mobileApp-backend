@@ -5,11 +5,11 @@ import { User, UserSchema } from '../schemas/user.schema';
 import { Nurse, NurseSchema } from '../schemas/nurse.schema';
 import { Authorized, AuthorizedSchema } from '../schemas/authorized.schema';
 import { Appointment, AppointmentSchema } from '../schemas/appointment.schema';
-import { OtpModule } from '../otp/otp.module';
+// import { OtpModule } from '../otp/otp.module';
 
 @Module({
   imports: [
-    OtpModule,
+    // OtpModule,
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Nurse.name, schema: NurseSchema },
@@ -20,4 +20,4 @@ import { OtpModule } from '../otp/otp.module';
   providers: [MongoService],
   exports: [MongoService],
 })
-export class MongoModule {}
+export class MongoModule { }

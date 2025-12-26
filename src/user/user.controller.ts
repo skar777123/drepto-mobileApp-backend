@@ -11,9 +11,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from '../dto/user.dto';
-import { RequestOtpDto } from '../dto/request-otp.dto';
-import { VerifyOtpDto } from '../dto/verify-otp.dto';
+import { CreateUserDto, LoginUserDto } from '../dto/user.dto';
+// import { RequestOtpDto } from '../dto/request-otp.dto';
+// import { VerifyOtpDto } from '../dto/verify-otp.dto';
 import { Public } from '../auth/public.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
 
@@ -22,28 +22,17 @@ export class UserController {
   constructor(private readonly userService: UserService) { }
 
   @Public()
-  @Post('request-otp')
+  @Post('register')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async requestOtp(@Body() requestOtpDto: RequestOtpDto) {
-    return this.userService.requestOtp(requestOtpDto.mobileNumber);
+  async register(@Body() createUserDto: CreateUserDto) {
+    return this.userService.register(createUserDto);
   }
 
   @Public()
-  @Post('verify-otp')
+  @Post('login')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
-    return this.userService.verifyOtp(Number(verifyOtpDto.mobileNumber), verifyOtpDto.otp);
-  }
-
-  @Public()
-  @Post('complete-registration/:userId')
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async completeRegistration(
-    @Param('userId') userId: string,
-    @Body() createUserDto: CreateUserDto,
-  ) {
-    const result = await this.userService.completeRegistration(userId, createUserDto);
-    return result;
+  async login(@Body() loginUserDto: LoginUserDto) {
+    return this.userService.login(loginUserDto);
   }
 
   @UseGuards(AuthGuard)

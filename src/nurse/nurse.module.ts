@@ -5,11 +5,11 @@ import { Nurse, NurseSchema } from '../schemas/nurse.schema';
 import { NurseService } from './nurse.service';
 import { NurseController } from './nurse.controller';
 import { AuthModule } from '../auth/auth.module';
-import { OtpModule } from '../otp/otp.module';
+// import { OtpModule } from '../otp/otp.module';
 
 @Module({
   imports: [
-    OtpModule,
+    // OtpModule,
     // TwilioModule.forRoot({
     //   accountSid: process.env.TWILIO_ACCOUNT_SID,
     //   authToken: process.env.TWILIO_AUTH_TOKEN,
@@ -20,4 +20,4 @@ import { OtpModule } from '../otp/otp.module';
   providers: [NurseService],
   controllers: [NurseController],
 })
-export class NurseModule {}
+export class NurseModule { }

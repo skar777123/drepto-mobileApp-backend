@@ -27,6 +27,19 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   medicalHistory: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+}
+
+export class LoginUserDto {
+  @IsNumber()
+  mobileNumber: number;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
 }
 
 export class UpdateUserDto {

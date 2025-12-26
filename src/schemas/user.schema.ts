@@ -32,14 +32,14 @@ export class User {
   @Prop()
   medicalHistory: string;
 
-  @Prop()
-  otp: Number;
+  // @Prop()
+  // otp: Number;
 
-  @Prop()
-  otpExpiry: Date;
+  // @Prop()
+  // otpExpiry: Date;
 
-  // @Prop({ required: true })
-  // password: string;
+  @Prop({ required: true })
+  password: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

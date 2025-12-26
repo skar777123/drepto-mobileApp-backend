@@ -13,8 +13,8 @@ import {
 import { NurseService } from './nurse.service';
 import { Nurse } from '../schemas/nurse.schema';
 import { CreateNurseDto, UpdateNurseDto } from '../dto/nurse.dto';
-import { RequestOtpDto } from '../dto/request-otp.dto';
-import { VerifyOtpDto } from '../dto/verify-otp.dto';
+// import { RequestOtpDto } from '../dto/request-otp.dto';
+// import { VerifyOtpDto } from '../dto/verify-otp.dto';
 import { Public } from '../auth/public.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
 
@@ -22,22 +22,22 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class NurseController {
   constructor(private readonly nurseService: NurseService) { }
 
-  @Public()
-  @Post('request-otp')
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async requestOtp(@Body() requestOtpDto: RequestOtpDto) {
-    return this.nurseService.requestOtp(requestOtpDto.mobileNumber);
-  }
+  // @Public()
+  // @Post('request-otp')
+  // @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  // async requestOtp(@Body() requestOtpDto: RequestOtpDto) {
+  //   return this.nurseService.requestOtp(requestOtpDto.mobileNumber);
+  // }
 
-  @Public()
-  @Post('verify-otp')
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
-    return this.nurseService.verifyOtp(
-      Number(verifyOtpDto.mobileNumber),
-      verifyOtpDto.otp,
-    );
-  }
+  // @Public()
+  // @Post('verify-otp')
+  // @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  // async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+  //   return this.nurseService.verifyOtp(
+  //     Number(verifyOtpDto.mobileNumber),
+  //     verifyOtpDto.otp,
+  //   );
+  // }
 
   @Public()
   @Post('complete-registration/:nurseId')

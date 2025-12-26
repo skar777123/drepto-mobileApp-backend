@@ -7,8 +7,9 @@ export interface User {
   gender: string;
   role: string;
   medicalHistory: string;
-  otp: Number;
-  otpExpiry?: Date;
+  // otp: Number;
+  // otpExpiry?: Date;
+  password?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -55,6 +56,7 @@ export interface CreateUserDto {
   role: string;
   dateOfBirth: string;
   medicalHistory: string;
+  password?: string;
 }
 
 export interface CreateNurseDto {

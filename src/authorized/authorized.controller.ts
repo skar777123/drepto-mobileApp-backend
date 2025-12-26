@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { AuthorizedService } from './authorized.service';
 import { CreateAuthorizedDto } from '../dto/authorized.dto';
-import { RequestOtpDto } from '../dto/request-otp.dto';
-import { VerifyOtpDto } from '../dto/verify-otp.dto';
+// import { RequestOtpDto } from '../dto/request-otp.dto';
+// import { VerifyOtpDto } from '../dto/verify-otp.dto';
 import { Public } from '../auth/public.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
 
@@ -21,22 +21,22 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class AuthorizedController {
   constructor(private readonly authorizedService: AuthorizedService) { }
 
-  @Public()
-  @Post('request-otp')
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async requestOtp(@Body() requestOtpDto: RequestOtpDto) {
-    return this.authorizedService.requestOtp(requestOtpDto.mobileNumber);
-  }
+  // @Public()
+  // @Post('request-otp')
+  // @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  // async requestOtp(@Body() requestOtpDto: RequestOtpDto) {
+  //   return this.authorizedService.requestOtp(requestOtpDto.mobileNumber);
+  // }
 
-  @Public()
-  @Post('verify-otp')
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
-    return this.authorizedService.verifyOtp(
-      Number(verifyOtpDto.mobileNumber),
-      verifyOtpDto.otp,
-    );
-  }
+  // @Public()
+  // @Post('verify-otp')
+  // @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  // async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+  //   return this.authorizedService.verifyOtp(
+  //     Number(verifyOtpDto.mobileNumber),
+  //     verifyOtpDto.otp,
+  //   );
+  // }
 
   @Public()
   @Post('complete-registration/:authorizedId')

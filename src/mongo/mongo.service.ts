@@ -10,15 +10,15 @@ import {
   Nurse,
   Authorized,
   CreateAuthorizedDto,
-  RequestOtpDto,
-  VerifyOtpDto,
+  // RequestOtpDto,
+  // VerifyOtpDto,
   appointmentDto,
 } from '../interfaces/user.interface';
 import { UserDocument } from '../schemas/user.schema';
 import { NurseDocument } from '../schemas/nurse.schema';
 import { AuthorizedDocument } from '../schemas/authorized.schema';
 import { AppointmentDocument } from '../schemas/appointment.schema';
-import { OtpService } from '../otp/otp.service';
+// import { OtpService } from '../otp/otp.service';
 
 @Injectable()
 export class MongoService {
@@ -31,82 +31,19 @@ export class MongoService {
     private authorizedModel: Model<AuthorizedDocument>,
     @InjectModel('Appointment')
     private appointmentModel: Model<AppointmentDocument>,
-    private otpService: OtpService,
-  ) {}
+    // private otpService: OtpService,
+  ) { }
 
   // User methods
-  async requestUserOtp(requestData: RequestOtpDto): Promise<{ success: boolean; message: string }> {
-    const existingUser = await this.userModel
-      .findOne({ mobileNumber: requestData.mobileNumber })
-      .exec();
+  // async requestUserOtp(requestData: RequestOtpDto): Promise<{ success: boolean; message: string }> {
+  //   // ... (commented out)
+  //   return { success: false, message: 'OTP auth disabled' };
+  // }
 
-    if (existingUser) {
-      // User exists, generate OTP for login
-      const otp = this.otpService.generateOtp();
-      const otpExpiry = this.otpService.getOtpExpiry();
-      await this.userModel.updateOne(
-        { mobileNumber: requestData.mobileNumber },
-        { otp, otpExpiry }
-      );
-      // TODO: Send OTP via SMS
-      return { success: true, message: 'OTP sent for login' };
-    } else {
-      // User does not exist, generate OTP for registration
-      const otp = this.otpService.generateOtp();
-      const otpExpiry = this.otpService.getOtpExpiry();
-      const tempUser = new this.userModel({
-        ...requestData,
-        otp,
-        otpExpiry,
-        firstName: '', // Placeholder
-        lastName: '',
-        dateOfBirth: '',
-        gender: '',
-        role: 'user',
-        medicalHistory: '',
-      });
-      await tempUser.save();
-      // TODO: Send OTP via SMS
-      return { success: true, message: 'OTP sent for registration' };
-    }
-  }
-
-  async verifyUserOtp(verifyData: VerifyOtpDto): Promise<{ success: boolean; message: string; user?: User }> {
-    const user = await this.userModel
-      .findOne({ mobileNumber: verifyData.mobileNumber })
-      .exec();
-
-    if (!user) {
-      return { success: false, message: 'User not found' };
-    }
-
-    if (this.otpService.isOtpExpired(user.otpExpiry)) {
-      return { success: false, message: 'OTP expired' };
-    }
-
-    if (user.otp !== verifyData.otp) {
-      return { success: false, message: 'Invalid OTP' };
-    }
-
-    // Clear OTP
-    await this.userModel.updateOne(
-      { mobileNumber: verifyData.mobileNumber },
-      { otp: null, otpExpiry: null }
-    );
-
-    const userObj = {
-      id: (user._id as any).toString(),
-      ...user.toObject(),
-    };
-
-    if (user.firstName) {
-      // Existing user, return for login
-      return { success: true, message: 'Login successful', user: userObj };
-    } else {
-      // New user, return for registration completion
-      return { success: true, message: 'OTP verified, proceed to complete registration', user: userObj };
-    }
-  }
+  // async verifyUserOtp(verifyData: VerifyOtpDto): Promise<{ success: boolean; message: string; user?: User }> {
+  //   // ... (commented out)
+  //   return { success: false, message: 'OTP auth disabled' };
+  // }
 
   async completeUserRegistration(userId: string, userData: CreateUserDto): Promise<User> {
     const user = await this.userModel
@@ -174,97 +111,21 @@ export class MongoService {
     return !!result;
   }
 
-  async loginUser(loginData: LoginDto): Promise<User | null> {
-    // This method is now deprecated, use requestUserOtp and verifyUserOtp
-    const user = await this.userModel
-      .findOne({ mobileNumber: loginData.mobileNumber })
-      .exec();
-    if (!user) return null;
-    if (user.otp !== loginData.otp) return null;
-    return {
-      id: (user._id as any).toString(),
-      ...user.toObject(),
-    };
-  }
+  // async loginUser(loginData: LoginDto): Promise<User | null> {
+  //   // ...
+  //   return null; 
+  // }
 
   // Nurse methods
-  async requestNurseOtp(requestData: RequestOtpDto): Promise<{ success: boolean; message: string }> {
-    const existingNurse = await this.nurseModel
-      .findOne({ mobileNumber: requestData.mobileNumber })
-      .exec();
+  // async requestNurseOtp(requestData: RequestOtpDto): Promise<{ success: boolean; message: string }> {
+  //   // ...
+  //   return { success: false, message: 'OTP auth disabled' };
+  // }
 
-    if (existingNurse) {
-      // Nurse exists, generate OTP for login
-      const otp = this.otpService.generateOtp();
-      const otpExpiry = this.otpService.getOtpExpiry();
-      await this.nurseModel.updateOne(
-        { mobileNumber: requestData.mobileNumber },
-        { otp, otpExpiry }
-      );
-      // TODO: Send OTP via SMS
-      return { success: true, message: 'OTP sent for login' };
-    } else {
-      // Nurse does not exist, generate OTP for registration
-      const otp = this.otpService.generateOtp();
-      const otpExpiry = this.otpService.getOtpExpiry();
-      const tempNurse = new this.nurseModel({
-        ...requestData,
-        otp,
-        otpExpiry,
-        firstName: '', // Placeholder
-        lastName: '',
-        dateOfBirth: '',
-        gender: '',
-        role: 'nurse',
-        licenseNumber: '',
-        specification: '',
-        availiability: '',
-        isAvailable: false,
-        experienceYears: 0,
-        serviceTypes: [],
-      });
-      await tempNurse.save();
-      // TODO: Send OTP via SMS
-      return { success: true, message: 'OTP sent for registration' };
-    }
-  }
-
-  async verifyNurseOtp(verifyData: VerifyOtpDto): Promise<{ success: boolean; message: string; nurse?: Nurse }> {
-    const nurse = await this.nurseModel
-      .findOne({ mobileNumber: verifyData.mobileNumber })
-      .exec();
-
-    if (!nurse) {
-      return { success: false, message: 'Nurse not found' };
-    }
-
-    if (this.otpService.isOtpExpired(nurse.otpExpiry)) {
-      return { success: false, message: 'OTP expired' };
-    }
-
-    if (nurse.otp !== verifyData.otp) {
-      return { success: false, message: 'Invalid OTP' };
-    }
-
-    // Clear OTP
-    await this.nurseModel.updateOne(
-      { mobileNumber: verifyData.mobileNumber },
-      { otp: null, otpExpiry: null }
-    );
-
-    const nurseObj = {
-      id: (nurse._id as any).toString(),
-      ...nurse.toObject(),
-    };
-
-    if (nurse.firstName) {
-      // Existing nurse, return for login
-      return { success: true, message: 'Login successful', nurse: nurseObj };
-    } else {
-      // New nurse, return for registration completion
-      return { success: true, message: 'OTP verified, proceed to complete registration', nurse: nurseObj };
-    }
-  }
+  // async verifyNurseOtp(verifyData: VerifyOtpDto): Promise<{ success: boolean; message: string; nurse?: Nurse }> {
+  //   // ...
+  //   return { success: false, message: 'OTP auth disabled' };
+  // }
 
   async completeNurseRegistration(nurseId: string, nurseData: CreateNurseDto): Promise<Nurse> {
     const nurse = await this.nurseModel
@@ -304,91 +165,21 @@ export class MongoService {
     }));
   }
 
-  async loginNurse(loginData: LoginDto): Promise<Nurse | null> {
-    // This method is now deprecated, use requestNurseOtp and verifyNurseOtp
-    const nurse = await this.nurseModel
-      .findOne({ mobileNumber: loginData.mobileNumber })
-      .exec();
-    if (!nurse) return null;
-    if (nurse.otp !== loginData.otp) return null;
-    return {
-      id: (nurse._id as any).toString(),
-      ...nurse.toObject(),
-    };
-  }
+  // async loginNurse(loginData: LoginDto): Promise<Nurse | null> {
+  //   // ...
+  //   return null; 
+  // }
 
   // Authorized methods
-  async requestAuthorizedOtp(requestData: RequestOtpDto): Promise<{ success: boolean; message: string }> {
-    const existingAuthorized = await this.authorizedModel
-      .findOne({ mobileNumber: requestData.mobileNumber })
-      .exec();
+  // async requestAuthorizedOtp(requestData: RequestOtpDto): Promise<{ success: boolean; message: string }> {
+  //   // ...
+  //   return { success: false, message: 'OTP auth disabled' };
+  // }
 
-    if (existingAuthorized) {
-      // Authorized exists, generate OTP for login
-      const otp = this.otpService.generateOtp();
-      const otpExpiry = this.otpService.getOtpExpiry();
-      await this.authorizedModel.updateOne(
-        { mobileNumber: requestData.mobileNumber },
-        { otp, otpExpiry }
-      );
-      // TODO: Send OTP via SMS
-      return { success: true, message: 'OTP sent for login' };
-    } else {
-      // Authorized does not exist, generate OTP for registration
-      const otp = this.otpService.generateOtp();
-      const otpExpiry = this.otpService.getOtpExpiry();
-      const tempAuthorized = new this.authorizedModel({
-        ...requestData,
-        otp,
-        otpExpiry,
-        firstName: '', // Placeholder
-        lastName: '',
-        gender: '',
-        role: 'authorized',
-        roleTitle: '',
-      });
-      await tempAuthorized.save();
-      // TODO: Send OTP via SMS
-      return { success: true, message: 'OTP sent for registration' };
-    }
-  }
-
-  async verifyAuthorizedOtp(verifyData: VerifyOtpDto): Promise<{ success: boolean; message: string; authorized?: Authorized }> {
-    const authorized = await this.authorizedModel
-      .findOne({ mobileNumber: verifyData.mobileNumber })
-      .exec();
-
-    if (!authorized) {
-      return { success: false, message: 'Authorized not found' };
-    }
-
-    if (this.otpService.isOtpExpired(authorized.otpExpiry)) {
-      return { success: false, message: 'OTP expired' };
-    }
-
-    if (authorized.otp !== verifyData.otp) {
-      return { success: false, message: 'Invalid OTP' };
-    }
-
-    // Clear OTP
-    await this.authorizedModel.updateOne(
-      { mobileNumber: verifyData.mobileNumber },
-      { otp: null, otpExpiry: null }
-    );
-
-    const authorizedObj = {
-      id: (authorized._id as any).toString(),
-      ...authorized.toObject(),
-    };
-
-    if (authorized.firstName) {
-      // Existing authorized, return for login
-      return { success: true, message: 'Login successful', authorized: authorizedObj };
-    } else {
-      // New authorized, return for registration completion
-      return { success: true, message: 'OTP verified, proceed to complete registration', authorized: authorizedObj };
-    }
-  }
+  // async verifyAuthorizedOtp(verifyData: VerifyOtpDto): Promise<{ success: boolean; message: string; authorized?: Authorized }> {
+  //   // ...
+  //   return { success: false, message: 'OTP auth disabled' };
+  // }
 
   async completeAuthorizedRegistration(authorizedId: string, authData: CreateAuthorizedDto): Promise<Authorized> {
     const authorized = await this.authorizedModel
@@ -420,18 +211,10 @@ export class MongoService {
     };
   }
 
-  async loginAuthorized(loginData: LoginDto): Promise<Authorized | null> {
-    // This method is now deprecated, use requestAuthorizedOtp and verifyAuthorizedOtp
-    const authorized = await this.authorizedModel
-      .findOne({ mobileNumber: loginData.mobileNumber })
-      .exec();
-    if (!authorized) return null;
-    if (authorized.otp !== loginData.otp) return null;
-    return {
-      id: (authorized._id as any).toString(),
-      ...authorized.toObject(),
-    };
-  }
+  // async loginAuthorized(loginData: LoginDto): Promise<Authorized | null> {
+  //   // ...
+  //   return null; 
+  // }
 
   // Appointment methods
   async appointmentBooking(appointmentData: appointmentDto): Promise<string> {

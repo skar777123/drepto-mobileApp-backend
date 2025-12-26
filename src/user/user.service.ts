@@ -2,125 +2,65 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 // import { TwilioService } from 'nestjs-twilio';
-import { User, CreateUserDto, VerifyOtpResponse } from '../interfaces/user.interface';
+import { CreateUserDto, LoginUserDto } from '../dto/user.dto';
+import { User } from '../interfaces/user.interface';
 import { UserDocument } from '../schemas/user.schema';
-import { OtpService } from '../otp/otp.service';
+// import { OtpService } from '../otp/otp.service';
 import { AuthService } from '../auth/auth.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel('User') private userModel: Model<UserDocument>,
-    private otpService: OtpService,
+    // private otpService: OtpService,
     // private readonly twilioService: TwilioService,
     private authService: AuthService,
-  ) {}
+  ) { }
 
-  async requestOtp(mobileNumber: Number): Promise<{ success: boolean; message: string; otp?: number }> {
-    const existingUser = await this.userModel
-      .findOne({ mobileNumber })
-      .exec();
-
+  async register(createUserDto: CreateUserDto): Promise<{ user: any; token: string }> {
+    const { mobileNumber, password, ...rest } = createUserDto;
+    const existingUser = await this.userModel.findOne({ mobileNumber }).exec();
     if (existingUser) {
-      // User exists, generate OTP for login
-      const otp = this.otpService.generateOtp();
-      const otpExpiry = this.otpService.getOtpExpiry();
-      await this.userModel.updateOne(
-        { mobileNumber },
-        { otp, otpExpiry }
-      );
-      // try {
-      //   await this.twilioService.client.messages.create({
-      //     body: `Your OTP is: ${otp}`,
-      //     from: process.env.TWILIO_PHONE_NUMBER,
-      //     to: `+91${mobileNumber}`,
-      //   });
-      //   return { success: true, message: 'OTP sent for login' };
-      // } catch (error) {
-      //   console.error('Error sending OTP:', error);
-      //   return { success: false, message: 'Failed to send OTP' };
-      // }
-      return { success: true, message: 'OTP generated for login', otp };
-    } else {
-      // User does not exist, generate OTP for registration
-      const otp = this.otpService.generateOtp();
-      const otpExpiry = this.otpService.getOtpExpiry();
-      const tempUser = new this.userModel({
-        mobileNumber: mobileNumber,
-        otp,
-        otpExpiry,
-        firstName: '', // Placeholder
-        lastName: '',
-        dateOfBirth: '',
-        gender: '',
-        role: 'user',
-        medicalHistory: '',
-      });
-      await tempUser.save();
-      // try {
-      //   await this.twilioService.client.messages.create({
-      //     body: `Your OTP is: ${otp}`,
-      //     from: process.env.TWILIO_PHONE_NUMBER,
-      //     to: `+91${mobileNumber}`,
-      //   });
-      //   return { success: true, message: 'OTP sent for registration' };
-      // } catch (error) {
-      //   console.error('Error sending OTP:', error);
-      //   return { success: false, message: 'Failed to send OTP' };
-      // }
-      return { success: true, message: 'OTP generated for registration', otp };
+      throw new Error('User already exists');
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new this.userModel({
+      mobileNumber,
+      password: hashedPassword,
+      ...rest,
+    });
+    await newUser.save();
+
+    const userObj = {
+      id: (newUser._id as any).toString(),
+      ...newUser.toObject(),
+    };
+    // delete userObj.password;
+
+    const token = await this.authService.generateToken({ id: userObj.id, role: userObj.role });
+    return { user: userObj, token };
   }
 
-  async verifyOtp(mobileNumber: Number, otp: number): Promise<VerifyOtpResponse> {
-    const user = await this.userModel
-      .findOne({ mobileNumber })
-      .exec();
-
+  async login(loginUserDto: LoginUserDto): Promise<{ user: any; token: string }> {
+    const { mobileNumber, password } = loginUserDto;
+    const user = await this.userModel.findOne({ mobileNumber }).exec();
     if (!user) {
-      return { success: false, message: 'User not found' };
+      throw new Error('Invalid credentials');
     }
 
-    if (this.otpService.isOtpExpired(user.otpExpiry)) {
-      return { success: false, message: 'OTP expired' };
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error('Invalid credentials');
     }
-
-    if (user.otp !== otp) {
-      return { success: false, message: 'Invalid OTP' };
-    }
-
-    // Clear OTP
-    await this.userModel.updateOne(
-      { mobileNumber },
-      { otp: null, otpExpiry: null }
-    );
 
     const userObj = {
       id: (user._id as any).toString(),
       ...user.toObject(),
     };
+    // delete userObj.password;
 
-    if (user.firstName) {
-      // Existing user, return for login with token
-      const token = await this.authService.generateToken({ id: userObj.id, role: userObj.role });
-      return { success: true, message: 'Login successful', user: userObj, token };
-    } else {
-      // New user, return for registration completion without token
-      return { success: true, message: 'OTP verified, proceed to complete registration', user: userObj };
-    }
-  }
-
-  async completeRegistration(userId: string, userData: CreateUserDto): Promise<{ user: User; token: string }> {
-    const user = await this.userModel
-      .findByIdAndUpdate(userId, userData, { new: true })
-      .exec();
-    if (!user) {
-      throw new Error('User not found');
-    }
-    const userObj = {
-      id: (user._id as any).toString(),
-      ...user.toObject(),
-    };
     const token = await this.authService.generateToken({ id: userObj.id, role: userObj.role });
     return { user: userObj, token };
   }
