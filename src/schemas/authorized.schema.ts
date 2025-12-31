@@ -14,7 +14,7 @@ export class Authorized {
   // @Prop({ required: true, unique: true })
   // email: string;
 
-  @Prop({ required: true , unique: true  })
+  @Prop({ required: true, unique: true })
   mobileNumber: Number;
 
   // @Prop({ required: true })
@@ -29,14 +29,14 @@ export class Authorized {
   @Prop()
   roleTitle: string;
 
-  @Prop()
-  otp: Number;
+  // @Prop()
+  // otp: Number;
 
-  @Prop()
-  otpExpiry: Date;
+  // @Prop()
+  // otpExpiry: Date;
 
-  // @Prop({ required: true })
-  // password: string;
+  @Prop({ required: true })
+  password: string;
 }
 
 export const AuthorizedSchema = SchemaFactory.createForClass(Authorized);

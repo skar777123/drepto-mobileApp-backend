@@ -23,6 +23,19 @@ export class CreateAuthorizedDto {
     @IsString()
     @IsNotEmpty()
     roleTitle: string;
+
+    @IsString()
+    @IsNotEmpty()
+    password: string;
+}
+
+export class LoginAuthorizedDto {
+    @IsNumber()
+    mobileNumber: number;
+
+    @IsString()
+    @IsNotEmpty()
+    password: string;
 }
 
 export class UpdateAuthorizedDto {

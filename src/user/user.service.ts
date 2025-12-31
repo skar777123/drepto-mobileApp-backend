@@ -44,8 +44,14 @@ export class UserService {
   }
 
   async login(loginUserDto: LoginUserDto): Promise<{ user: any; token: string }> {
-    const { mobileNumber, password } = loginUserDto;
-    const user = await this.userModel.findOne({ mobileNumber }).exec();
+    const { mobileNumber, email, password } = loginUserDto;
+
+    if (!mobileNumber && !email) {
+      throw new Error('Please provide either mobile number or email');
+    }
+
+    const query = mobileNumber ? { mobileNumber } : { email };
+    const user = await this.userModel.findOne(query).exec();
     if (!user) {
       throw new Error('Invalid credentials');
     }

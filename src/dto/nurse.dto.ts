@@ -33,9 +33,7 @@ export class CreateNurseDto {
   @IsNotEmpty()
   gender: string;
 
-  @IsString()
-  @IsNotEmpty()
-  dateOfBirth: string;
+
 
   @IsString()
   @IsNotEmpty()
@@ -60,11 +58,22 @@ export class CreateNurseDto {
   @Min(0)
   experienceYears: number;
 
-  // OTP is handled separately
+  @IsString()
+  @IsNotEmpty()
+  password: string;
 
   @IsArray()
   @IsEnum(NurseServiceType, { each: true })
   serviceTypes: NurseServiceType[];
+}
+
+export class LoginNurseDto {
+  @IsNumber()
+  mobileNumber: number;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
 }
 
 export class UpdateNurseDto {
@@ -87,10 +96,7 @@ export class UpdateNurseDto {
   @IsNotEmpty()
   gender?: string;
 
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  dateOfBirth?: string;
+
 
   @IsOptional()
   @IsString()

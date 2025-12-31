@@ -1,46 +1,62 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-// import { TwilioService } from 'nestjs-twilio';
-import { Nurse, CreateNurseDto, VerifyOtpNurseResponse } from '../interfaces/user.interface';
+import * as bcrypt from 'bcrypt';
+import { Nurse, CreateNurseDto, LoginNurseDto } from '../interfaces/user.interface';
 import { NurseDocument } from '../schemas/nurse.schema';
-// import { OtpService } from '../otp/otp.service';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class NurseService {
   constructor(
     @InjectModel('Nurse') private nurseModel: Model<NurseDocument>,
-    // private otpService: OtpService,
-    // private readonly twilioService: TwilioService,
     private authService: AuthService,
   ) { }
 
-  // async requestOtp(mobileNumber: Number): Promise<{ success: boolean; message: string; otp?: number }> {
-  // ... (commented out) ...
-  // }
-
-  // async verifyOtp(mobileNumber: Number, otp: number): Promise<VerifyOtpNurseResponse> {
-  // ... (commented out) ...
-  // }
-
-  async completeRegistration(nurseId: string, nurseData: CreateNurseDto): Promise<Nurse> {
-    const nurse = await this.nurseModel
-      .findByIdAndUpdate(nurseId, nurseData, { new: true })
-      .exec();
-    if (!nurse) {
-      throw new Error('Nurse not found');
+  async register(createNurseDto: CreateNurseDto): Promise<{ nurse: any; token: string }> {
+    const { mobileNumber, password, ...rest } = createNurseDto;
+    const existingNurse = await this.nurseModel.findOne({ mobileNumber }).exec();
+    if (existingNurse) {
+      throw new Error('Nurse already exists');
     }
-    return {
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newNurse = new this.nurseModel({
+      mobileNumber,
+      password: hashedPassword,
+      ...rest,
+    });
+    await newNurse.save();
+
+    const nurseObj = {
+      id: (newNurse._id as any).toString(),
+      ...newNurse.toObject(),
+    };
+
+    const token = await this.authService.generateToken({ id: nurseObj.id, role: nurseObj.role });
+    return { nurse: nurseObj, token };
+  }
+
+  async login(loginNurseDto: LoginNurseDto): Promise<{ nurse: any; token: string }> {
+    const { mobileNumber, password } = loginNurseDto;
+    const nurse = await this.nurseModel.findOne({ mobileNumber }).exec();
+    if (!nurse) {
+      throw new Error('Invalid credentials');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, nurse.password);
+    if (!isPasswordValid) {
+      throw new Error('Invalid credentials');
+    }
+
+    const nurseObj = {
       id: (nurse._id as any).toString(),
       ...nurse.toObject(),
     };
-  }
 
-  // async create(createNurseDto: Partial<Nurse>): Promise<Nurse> {
-  //   const createdNurse = new this.nurseModel(createNurseDto);
-  //   return createdNurse.save();
-  // }
+    const token = await this.authService.generateToken({ id: nurseObj.id, role: nurseObj.role });
+    return { nurse: nurseObj, token };
+  }
 
   async findAll(): Promise<Nurse[]> {
     return this.nurseModel.find().exec();

@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional, IsEmail } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -8,6 +8,14 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   lastName: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  age: number;
 
   @IsNumber()
   mobileNumber: number;
@@ -20,13 +28,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   role: string;
 
-  @IsString()
-  @IsNotEmpty()
-  dateOfBirth: string;
 
-  @IsString()
-  @IsOptional()
-  medicalHistory: string;
+
+  // @IsString()
+  // @IsOptional()
+  // medicalHistory: string;
 
   @IsString()
   @IsNotEmpty()
@@ -35,7 +41,12 @@ export class CreateUserDto {
 
 export class LoginUserDto {
   @IsNumber()
-  mobileNumber: number;
+  @IsOptional()
+  mobileNumber?: number;
+
+  @IsEmail()
+  @IsOptional()
+  email?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -55,6 +66,14 @@ export class UpdateUserDto {
   @IsOptional()
   mobileNumber?: number;
 
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @IsNumber()
+  @IsOptional()
+  age?: number;
+
   @IsString()
   @IsOptional()
   gender?: string;
@@ -63,11 +82,9 @@ export class UpdateUserDto {
   @IsOptional()
   role?: string;
 
-  @IsString()
-  @IsOptional()
-  dateOfBirth?: string;
 
-  @IsString()
-  @IsOptional()
-  medicalHistory?: string;
+
+  // @IsString()
+  // @IsOptional()
+  // medicalHistory?: string;
 }

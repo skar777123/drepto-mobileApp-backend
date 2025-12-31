@@ -1,40 +1,60 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-// import { TwilioService } from 'nestjs-twilio';
-import { Authorized, CreateAuthorizedDto, VerifyOtpAuthorizedResponse } from '../interfaces/user.interface';
+import * as bcrypt from 'bcrypt';
+import { Authorized, CreateAuthorizedDto } from '../interfaces/user.interface';
+import { LoginAuthorizedDto } from '../dto/authorized.dto';
 import { AuthorizedDocument } from '../schemas/authorized.schema';
-// import { OtpService } from '../otp/otp.service';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class AuthorizedService {
   constructor(
     @InjectModel('Authorized') private authorizedModel: Model<AuthorizedDocument>,
-    // private otpService: OtpService,
-    // private readonly twilioService: TwilioService,
     private authService: AuthService,
   ) { }
 
-  // async requestOtp(mobileNumber: Number): Promise<{ success: boolean; message: string; otp?: number }> {
-  // ... (commented out) ...
-  // }
-
-  // async verifyOtp(mobileNumber: Number, otp: number): Promise<VerifyOtpAuthorizedResponse> {
-  // ... (commented out) ...
-  // }
-
-  async completeRegistration(authorizedId: string, authorizedData: CreateAuthorizedDto): Promise<{ authorized: Authorized; token: string }> {
-    const authorized = await this.authorizedModel
-      .findByIdAndUpdate(authorizedId, authorizedData, { new: true })
-      .exec();
-    if (!authorized) {
-      throw new NotFoundException('Authorized not found');
+  async register(createAuthorizedDto: CreateAuthorizedDto): Promise<{ authorized: any; token: string }> {
+    const { mobileNumber, password, ...rest } = createAuthorizedDto;
+    const existingAuthorized = await this.authorizedModel.findOne({ mobileNumber }).exec();
+    if (existingAuthorized) {
+      throw new Error('Authorized already exists');
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newAuthorized = new this.authorizedModel({
+      mobileNumber,
+      password: hashedPassword,
+      ...rest,
+    });
+    await newAuthorized.save();
+
+    const authorizedObj = {
+      id: (newAuthorized._id as any).toString(),
+      ...newAuthorized.toObject(),
+    };
+
+    const token = await this.authService.generateToken({ id: authorizedObj.id, role: authorizedObj.role });
+    return { authorized: authorizedObj, token };
+  }
+
+  async login(loginAuthorizedDto: LoginAuthorizedDto): Promise<{ authorized: any; token: string }> {
+    const { mobileNumber, password } = loginAuthorizedDto;
+    const authorized = await this.authorizedModel.findOne({ mobileNumber }).exec();
+    if (!authorized) {
+      throw new Error('Invalid credentials');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, authorized.password);
+    if (!isPasswordValid) {
+      throw new Error('Invalid credentials');
+    }
+
     const authorizedObj = {
       id: (authorized._id as any).toString(),
       ...authorized.toObject(),
     };
+
     const token = await this.authService.generateToken({ id: authorizedObj.id, role: authorizedObj.role });
     return { authorized: authorizedObj, token };
   }

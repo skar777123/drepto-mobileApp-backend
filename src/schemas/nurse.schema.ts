@@ -22,8 +22,7 @@ export class Nurse {
   @Prop()
   gender: string;
 
-  @Prop()
-  dateOfBirth: string;
+
 
   // @Prop({ required: true })
   // address: string;
@@ -45,8 +44,8 @@ export class Nurse {
   @Prop()
   isAvailable: boolean;
 
-  // @Prop({ required: true })
-  // password: string;
+  @Prop({ required: true })
+  password: string;
 
   @Prop()
   experienceYears: number;
@@ -54,11 +53,11 @@ export class Nurse {
   // @Prop({ required: true })
   // rating: number;
 
-  @Prop()
-  otp: Number;
+  // @Prop()
+  // otp: Number;
 
-  @Prop()
-  otpExpiry: Date;
+  // @Prop()
+  // otpExpiry: Date;
 
   @Prop({
     required: true,

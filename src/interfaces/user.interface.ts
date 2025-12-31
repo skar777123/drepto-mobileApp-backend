@@ -2,11 +2,12 @@ export interface User {
   id?: string;
   firstName: string;
   lastName: string;
+  email: string;
+  age: number;
   mobileNumber: Number;
-  dateOfBirth: string;
   gender: string;
   role: string;
-  medicalHistory: string;
+  // medicalHistory: string;
   // otp: Number;
   // otpExpiry?: Date;
   password?: string;
@@ -20,15 +21,15 @@ export interface Nurse {
   lastName: string;
   mobileNumber: Number;
   gender: string;
-  dateOfBirth: string;
   licenseNumber: string;
   role: string;
   specification: string;
   availiability: string;
   isAvailable: boolean;
   experienceYears: number;
-  otp: Number;
-  otpExpiry?: Date;
+  password?: string;
+  // otp: Number;
+  // otpExpiry?: Date;
   serviceTypes: string[];
   createdAt?: string;
   updatedAt?: string;
@@ -42,8 +43,9 @@ export interface Authorized {
   role: string;
   gender: string;
   roleTitle: string;
-  otp: Number;
-  otpExpiry?: Date;
+  password?: string;
+  // otp: Number;
+  // otpExpiry?: Date;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -51,11 +53,12 @@ export interface Authorized {
 export interface CreateUserDto {
   firstName: string;
   lastName: string;
+  email: string;
+  age: number;
   mobileNumber: Number;
   gender: string;
   role: string;
-  dateOfBirth: string;
-  medicalHistory: string;
+  // medicalHistory: string;
   password?: string;
 }
 
@@ -63,7 +66,6 @@ export interface CreateNurseDto {
   firstName: string;
   lastName: string;
   mobileNumber: Number;
-  dateOfBirth: string;
   gender: string;
   role: string;
   licenseNumber: string;
@@ -71,7 +73,9 @@ export interface CreateNurseDto {
   availiability: string;
   isAvailable: boolean;
   experienceYears: number;
+
   serviceTypes: string[];
+  password: string;
 }
 
 export interface CreateAuthorizedDto {
@@ -81,6 +85,7 @@ export interface CreateAuthorizedDto {
   role: string;
   mobileNumber: Number;
   roleTitle: string;
+  password: string;
 }
 
 export interface RequestOtpDto {
@@ -113,9 +118,21 @@ export interface VerifyOtpAuthorizedResponse {
   token?: string;
 }
 
-export interface LoginDto {
+export interface LoginNurseDto {
   mobileNumber: Number;
-  otp: Number;
+  password: string;
+}
+
+export interface LoginAuthorizedDto {
+  mobileNumber: Number;
+  password: string;
+}
+
+export interface LoginDto {
+  mobileNumber?: Number;
+  email?: string;
+  otp?: Number;
+  password?: string;
 }
 
 export interface appointmentDto {

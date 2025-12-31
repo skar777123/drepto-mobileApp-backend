@@ -12,9 +12,7 @@ import {
 } from '@nestjs/common';
 import { NurseService } from './nurse.service';
 import { Nurse } from '../schemas/nurse.schema';
-import { CreateNurseDto, UpdateNurseDto } from '../dto/nurse.dto';
-// import { RequestOtpDto } from '../dto/request-otp.dto';
-// import { VerifyOtpDto } from '../dto/verify-otp.dto';
+import { CreateNurseDto, UpdateNurseDto, LoginNurseDto } from '../dto/nurse.dto';
 import { Public } from '../auth/public.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
 
@@ -22,31 +20,18 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class NurseController {
   constructor(private readonly nurseService: NurseService) { }
 
-  // @Public()
-  // @Post('request-otp')
-  // @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  // async requestOtp(@Body() requestOtpDto: RequestOtpDto) {
-  //   return this.nurseService.requestOtp(requestOtpDto.mobileNumber);
-  // }
-
-  // @Public()
-  // @Post('verify-otp')
-  // @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  // async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
-  //   return this.nurseService.verifyOtp(
-  //     Number(verifyOtpDto.mobileNumber),
-  //     verifyOtpDto.otp,
-  //   );
-  // }
+  @Public()
+  @Post('register')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async register(@Body() createNurseDto: CreateNurseDto) {
+    return this.nurseService.register(createNurseDto);
+  }
 
   @Public()
-  @Post('complete-registration/:nurseId')
+  @Post('login')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async completeRegistration(
-    @Param('nurseId') nurseId: string,
-    @Body() createNurseDto: CreateNurseDto,
-  ) {
-    return this.nurseService.completeRegistration(nurseId, createNurseDto);
+  async login(@Body() loginNurseDto: LoginNurseDto) {
+    return this.nurseService.login(loginNurseDto);
   }
 
   // @Post()

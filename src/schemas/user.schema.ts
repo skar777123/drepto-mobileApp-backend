@@ -11,14 +11,14 @@ export class User {
   @Prop()
   lastName: string;
 
-  // @Prop({ required: true, unique: true })
-  // email: string;
+  @Prop({ required: true, unique: true })
+  email: string;
+
+  @Prop()
+  age: number;
 
   @Prop({ required: true, unique: true })
   mobileNumber: Number;
-
-  @Prop()
-  dateOfBirth: string;
 
   @Prop()
   gender: string;
@@ -29,14 +29,14 @@ export class User {
   // @Prop({ required: true })
   // address: string;
 
-  @Prop()
-  medicalHistory: string;
+  // @Prop()
+  // medicalHistory: string;
 
   // @Prop()
   // otp: Number;
 
   // @Prop()
-  // otpExpiry: Date;
+  // otpExpiry: Date; 
 
   @Prop({ required: true })
   password: string;
