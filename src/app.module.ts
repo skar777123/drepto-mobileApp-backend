@@ -21,6 +21,7 @@ import { LabSlotModule } from './lab-slot/lab-slot.module';
 import { LabTestBookingModule } from './lab-test-booking/lab-test-booking.module';
 import { UserModule } from './user/user.module';
 import { AuthorizedModule } from './authorized/authorized.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -54,8 +55,9 @@ import { AuthorizedModule } from './authorized/authorized.module';
     LabCenterModule,
     LabSlotModule,
     LabTestBookingModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
