@@ -28,8 +28,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   role: string;
 
-
-
   // @IsString()
   // @IsOptional()
   // medicalHistory: string;

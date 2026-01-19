@@ -23,6 +23,7 @@ import { UserModule } from './user/user.module';
 import { AuthorizedModule } from './authorized/authorized.module';
 import { ProductModule } from './product/product.module';
 import { ContactModule } from './contact/contact.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { ContactModule } from './contact/contact.module';
     LabTestBookingModule,
     ProductModule,
     ContactModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
