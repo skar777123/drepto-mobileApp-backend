@@ -22,13 +22,13 @@ export class Payment extends Document {
     razorpaySignature?: string;
 
     @Prop({ required: true })
-    amount: number; // Stored in subunits (e.g., 50000 for ₹500.00)
+    amount: number;
 
     @Prop({ default: 'INR' })
     currency: string;
 
     @Prop({ required: true, unique: true })
-    receipt: string; // Your internal tracking ID
+    receipt: string;
 
     @Prop({
         type: String,
@@ -38,7 +38,7 @@ export class Payment extends Document {
     status: PaymentStatus;
 
     @Prop({ type: Object })
-    notes: Record<string, any>; // For custom metadata
+    notes: Record<string, any>;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);
