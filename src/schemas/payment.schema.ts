@@ -12,6 +12,18 @@ export class Payment extends Document {
     @Prop({ type: Types.ObjectId, ref: 'User', required: true })
     userId: Types.ObjectId;
 
+    @Prop({ type: Types.ObjectId, ref: 'ShippingAddress', required: false })
+    shippingAddress?: Types.ObjectId;
+
+    @Prop({ type: Array, default: [] })
+    items: Record<string, any>[];
+
+    @Prop()
+    shippingMethod: string;
+
+    @Prop()
+    shippingCost: number;
+
     @Prop({ required: true, unique: true })
     razorpayOrderId: string;
 

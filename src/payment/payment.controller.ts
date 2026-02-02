@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { CreatePaymentDto, UpdatePaymentDto } from '../dto/payment.dto';
+import { CreateOrderDto, CreatePaymentDto, UpdatePaymentDto } from '../dto/payment.dto';
 import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('payment')
@@ -16,5 +16,11 @@ export class PaymentController {
     @Post('update-status')
     async updateStatus(@Body() updatePaymentDto: UpdatePaymentDto) {
         return this.paymentService.updateTransactionStatus(updatePaymentDto);
+    }
+
+    @UseGuards(AuthGuard)
+    @Post('create-order')
+    async createOrder(@Body() createOrderDto: CreateOrderDto, @Req() req) {
+        return this.paymentService.createOrder(createOrderDto, req.user.id);
     }
 }

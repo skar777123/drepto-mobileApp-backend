@@ -24,6 +24,7 @@ import { AuthorizedModule } from './authorized/authorized.module';
 import { ProductModule } from './product/product.module';
 import { ContactModule } from './contact/contact.module';
 import { PaymentModule } from './payment/payment.module';
+import { ShippingAddressModule } from './shipping-address/shipping-address.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { PaymentModule } from './payment/payment.module';
     ProductModule,
     ContactModule,
     PaymentModule,
+    ShippingAddressModule,
   ],
   controllers: [AppController],
   providers: [AppService],

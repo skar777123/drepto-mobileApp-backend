@@ -3,15 +3,78 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
-import { Payment, PaymentStatus } from '../schemas/payment.schema';
-import { CreatePaymentDto, UpdatePaymentDto } from '../dto/payment.dto';
+import { Payment, PaymentSchema, PaymentStatus } from '../schemas/payment.schema';
+import { CreateOrderDto, CreatePaymentDto, UpdatePaymentDto } from '../dto/payment.dto';
+import { ShippingAddressService } from '../shipping-address/shipping-address.service';
+import { ShippingAddress, ShippingAddressDocument } from '../schemas/shipping-address.schema';
+import Razorpay from 'razorpay';
 
 @Injectable()
 export class PaymentService {
+    private razorpayClient: any;
+
     constructor(
         @InjectModel(Payment.name) private paymentModel: Model<Payment>,
         private configService: ConfigService,
-    ) { }
+        private shippingAddressService: ShippingAddressService,
+    ) {
+        this.razorpayClient = new Razorpay({
+            key_id: this.configService.get<string>('RAZORPAY_KEY_ID') || '',
+            key_secret: this.configService.get<string>('RAZORPAY_KEY_SECRET') || '',
+        });
+    }
+
+    async createOrder(createOrderDto: CreateOrderDto, userId: string) {
+        const { amount, currency, shippingAddress, items, shippingMethod, shippingCost } = createOrderDto;
+
+        try {
+            const options = {
+                amount: amount,
+                currency: currency,
+                receipt: `receipt_${Date.now()}`,
+            };
+            const order = await this.razorpayClient.orders.create(options);
+
+            let savedAddress: ShippingAddressDocument | null = null;
+            if (shippingAddress) {
+                savedAddress = await this.shippingAddressService.create({ ...shippingAddress, userId });
+            }
+
+            const payment = new this.paymentModel({
+                userId: new Types.ObjectId(userId),
+                razorpayOrderId: order.id,
+                amount: amount,
+                currency: currency,
+                receipt: order.receipt,
+                status: PaymentStatus.CREATED,
+                shippingAddress: savedAddress ? savedAddress._id : undefined,
+                items,
+                shippingMethod,
+                shippingCost,
+                notes: {
+                    ...order.notes
+                },
+            });
+            await payment.save();
+
+            return {
+                id: order.id, // satisfying user request return format
+                entity: order.entity,
+                amount: order.amount,
+                amount_paid: order.amount_paid,
+                amount_due: order.amount_due,
+                currency: order.currency,
+                receipt: order.receipt,
+                status: order.status,
+                attempts: order.attempts,
+                created_at: order.created_at,
+                shippingAddress: savedAddress,
+            };
+        } catch (error) {
+            console.error('Razorpay Error:', error);
+            throw new BadRequestException('Failed to create Razorpay order');
+        }
+    }
 
     async createTransactionRecord(createPaymentDto: CreatePaymentDto, userId: string) {
         const { razorpayOrderId, amount, currency, receipt, notes } = createPaymentDto;
