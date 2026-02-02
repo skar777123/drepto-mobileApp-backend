@@ -57,6 +57,9 @@ export class Payment extends Document {
 
     @Prop({ type: Object })
     notes: Record<string, any>;
+
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);
