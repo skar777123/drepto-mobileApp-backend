@@ -7,34 +7,20 @@ import { Payment, PaymentSchema, PaymentStatus } from '../schemas/payment.schema
 import { CreateOrderDto, CreatePaymentDto, UpdatePaymentDto } from '../dto/payment.dto';
 import { ShippingAddressService } from '../shipping-address/shipping-address.service';
 import { ShippingAddress, ShippingAddressDocument } from '../schemas/shipping-address.schema';
-import Razorpay from 'razorpay';
+
 
 @Injectable()
 export class PaymentService {
-    private razorpayClient: any;
-
     constructor(
         @InjectModel(Payment.name) private paymentModel: Model<Payment>,
         private configService: ConfigService,
         private shippingAddressService: ShippingAddressService,
-    ) {
-        this.razorpayClient = new Razorpay({
-            key_id: this.configService.get<string>('RAZORPAY_KEY_ID') || '',
-            key_secret: this.configService.get<string>('RAZORPAY_KEY_SECRET') || '',
-        });
-    }
+    ) { }
 
     async createOrder(createOrderDto: CreateOrderDto, userId: string) {
-        const { amount, currency, shippingAddress, items, shippingMethod, shippingCost } = createOrderDto;
+        const { amount, currency, shippingAddress, items, shippingMethod, shippingCost, transactionId, orderId } = createOrderDto;
 
         try {
-            const options = {
-                amount: amount,
-                currency: currency,
-                receipt: `receipt_${Date.now()}`,
-            };
-            const order = await this.razorpayClient.orders.create(options);
-
             let savedAddress: ShippingAddressDocument | null = null;
             if (shippingAddress) {
                 savedAddress = await this.shippingAddressService.create({ ...shippingAddress, userId });
@@ -42,37 +28,32 @@ export class PaymentService {
 
             const payment = new this.paymentModel({
                 userId: new Types.ObjectId(userId),
-                razorpayOrderId: order.id,
+                transactionId,
+                orderId: orderId || undefined,
                 amount: amount,
-                currency: currency,
-                receipt: order.receipt,
+                currency: currency, // default 'INR' if not passed or passed explicit
                 status: PaymentStatus.CREATED,
                 shippingAddress: savedAddress ? savedAddress._id : undefined,
                 items,
                 shippingMethod,
                 shippingCost,
-                notes: {
-                    ...order.notes
-                },
+                notes: {} // Frontend can pass notes if needed later
             });
             await payment.save();
 
             return {
-                id: order.id, // satisfying user request return format
-                entity: order.entity,
-                amount: order.amount,
-                amount_paid: order.amount_paid,
-                amount_due: order.amount_due,
-                currency: order.currency,
-                receipt: order.receipt,
-                status: order.status,
-                attempts: order.attempts,
-                created_at: order.created_at,
+                id: payment._id,
+                orderId: payment.orderId,
+                transactionId: payment.transactionId,
+                amount: payment.amount,
+                currency: payment.currency,
+                status: payment.status,
+                created_at: payment.createdAt, // Mongoose timestamp
                 shippingAddress: savedAddress,
             };
         } catch (error) {
-            console.error('Razorpay Error:', error);
-            throw new BadRequestException('Failed to create Razorpay order');
+            console.error('Error creating local order:', error);
+            throw new BadRequestException('Failed to create order record');
         }
     }
 

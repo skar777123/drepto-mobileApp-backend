@@ -43,6 +43,14 @@ export class UpdatePaymentDto {
 }
 
 export class CreateOrderDto {
+    @IsString()
+    @IsOptional()
+    orderId?: string;
+
+    @IsString()
+    @IsNotEmpty()
+    transactionId: string;
+
     @IsNumber()
     @IsNotEmpty()
     amount: number;

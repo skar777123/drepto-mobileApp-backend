@@ -24,8 +24,14 @@ export class Payment extends Document {
     @Prop()
     shippingCost: number;
 
-    @Prop({ required: true, unique: true })
-    razorpayOrderId: string;
+    @Prop({ required: false })
+    razorpayOrderId?: string;
+
+    @Prop({ unique: true, sparse: true })
+    orderId: string;
+
+    @Prop({ required: true })
+    transactionId: string;
 
     @Prop()
     razorpayPaymentId?: string;
@@ -39,8 +45,8 @@ export class Payment extends Document {
     @Prop({ default: 'INR' })
     currency: string;
 
-    @Prop({ required: true, unique: true })
-    receipt: string;
+    @Prop({ required: false })
+    receipt?: string;
 
     @Prop({
         type: String,
