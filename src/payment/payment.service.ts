@@ -116,4 +116,12 @@ export class PaymentService {
 
         return { success: true, message: 'Transaction updated successfully', data: payment };
     }
+    async findAll(userId?: string): Promise<Payment[]> {
+        const query = userId ? { userId: new Types.ObjectId(userId) } : {};
+        return this.paymentModel.find(query).exec();
+    }
+
+    async findOne(id: string): Promise<Payment | null> {
+        return this.paymentModel.findById(id).exec();
+    }
 }

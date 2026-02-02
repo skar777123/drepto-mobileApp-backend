@@ -1,6 +1,7 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards, Req } from '@nestjs/common';
 import { ShippingAddressService } from './shipping-address.service';
-import { CreateShippingAddressDto } from '../dto/shipping-address.dto';
+import { CreateShippingAddressDto, UpdateShippingAddressDto } from '../dto/shipping-address.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('shipping-address')
 export class ShippingAddressController {
@@ -14,5 +15,21 @@ export class ShippingAddressController {
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.shippingAddressService.findOne(id);
+    }
+
+    @UseGuards(AuthGuard)
+    @Get()
+    findAll(@Req() req) {
+        return this.shippingAddressService.findAll(req.user.id);
+    }
+
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() updateShippingAddressDto: UpdateShippingAddressDto) {
+        return this.shippingAddressService.update(id, updateShippingAddressDto);
+    }
+
+    @Delete(':id')
+    remove(@Param('id') id: string) {
+        return this.shippingAddressService.remove(id);
     }
 }
