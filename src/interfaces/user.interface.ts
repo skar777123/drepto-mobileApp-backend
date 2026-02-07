@@ -13,6 +13,7 @@ export interface User {
   password?: string;
   createdAt?: string;
   updatedAt?: string;
+  orders?: any[];
 }
 
 export interface Nurse {

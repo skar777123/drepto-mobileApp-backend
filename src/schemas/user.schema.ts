@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type UserDocument = User & Document;
 
@@ -26,8 +26,11 @@ export class User {
   @Prop()
   role: string;
 
-  // @Prop({ required: true })
-  // address: string;
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Payment' }] })
+  orders: Types.ObjectId[];
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'ShippingAddress' }] })
+  address: Types.ObjectId[];
 
   // @Prop()
   // medicalHistory: string;

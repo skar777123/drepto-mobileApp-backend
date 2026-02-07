@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { Payment, PaymentSchema, PaymentStatus } from '../schemas/payment.schema';
+import { User, UserDocument } from '../schemas/user.schema';
 import { CreateOrderDto, CreatePaymentDto, UpdatePaymentDto } from '../dto/payment.dto';
 import { ShippingAddressService } from '../shipping-address/shipping-address.service';
 import { ShippingAddress, ShippingAddressDocument } from '../schemas/shipping-address.schema';
@@ -13,6 +14,7 @@ import { ShippingAddress, ShippingAddressDocument } from '../schemas/shipping-ad
 export class PaymentService {
     constructor(
         @InjectModel(Payment.name) private paymentModel: Model<Payment>,
+        @InjectModel(User.name) private userModel: Model<UserDocument>,
         private configService: ConfigService,
         private shippingAddressService: ShippingAddressService,
     ) { }
@@ -39,7 +41,14 @@ export class PaymentService {
                 shippingCost,
                 notes: {} // Frontend can pass notes if needed later
             });
+
             await payment.save();
+
+            await this.userModel.findByIdAndUpdate(
+                userId,
+                { $push: { orders: payment._id } },
+                { new: true }
+            );
 
             return {
                 id: payment._id,
@@ -75,7 +84,15 @@ export class PaymentService {
             notes,
         });
 
-        return await newPayment.save();
+        const savedPayment = await newPayment.save();
+
+        await this.userModel.findByIdAndUpdate(
+            userId,
+            { $push: { orders: savedPayment._id } },
+            { new: true }
+        );
+
+        return savedPayment;
     }
 
     async updateTransactionStatus(updatePaymentDto: UpdatePaymentDto) {
