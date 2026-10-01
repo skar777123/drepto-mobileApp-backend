@@ -37,6 +37,32 @@ export class AppController {
     private readonly authService: AuthService,
   ) {}
 
+  @Get('health')
+  async healthCheck() {
+    const memoryUsage = process.memoryUsage();
+    let mongoStatus = 'healthy';
+
+    try {
+      await this.mongoService.getAllUsers();
+    } catch {
+      mongoStatus = 'unhealthy';
+    }
+
+    return {
+      status: mongoStatus === 'healthy' ? 'ok' : 'degraded',
+      timestamp: new Date().toISOString(),
+      uptime: Math.floor(process.uptime()),
+      services: {
+        mongodb: mongoStatus,
+      },
+      memory: {
+        heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
+        heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`,
+        rss: `${Math.round(memoryUsage.rss / 1024 / 1024)}MB`,
+      },
+    };
+  }
+
   @Get('mongo-test')
   async testMongo(): Promise<string> {
     try {
