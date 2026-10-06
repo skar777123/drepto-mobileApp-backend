@@ -13,9 +13,9 @@ export class CreateShippingAddressDto {
     @IsString()
     buildingName?: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
-    street: string;
+    street?: string;
 
     @IsOptional()
     @IsString()
@@ -29,9 +29,9 @@ export class CreateShippingAddressDto {
     @IsString()
     state: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
-    country: string;
+    country?: string;
 
     @IsNotEmpty()
     @IsString()

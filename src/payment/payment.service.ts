@@ -25,7 +25,11 @@ export class PaymentService {
         try {
             let savedAddress: ShippingAddressDocument | null = null;
             if (shippingAddress) {
-                savedAddress = await this.shippingAddressService.create({ ...shippingAddress, userId });
+                // Save shipping address linked to this user
+                savedAddress = await this.shippingAddressService.create({
+                    ...shippingAddress,
+                    userId,  // pass as string, schema handles it
+                });
             }
 
             const payment = new this.paymentModel({
@@ -33,13 +37,13 @@ export class PaymentService {
                 transactionId,
                 orderId: orderId || undefined,
                 amount: amount,
-                currency: currency, // default 'INR' if not passed or passed explicit
+                currency: currency,
                 status: PaymentStatus.CREATED,
-                shippingAddress: savedAddress ? savedAddress._id : undefined,
+                shippingAddress: savedAddress ? (savedAddress as any)._id : undefined,
                 items,
                 shippingMethod,
                 shippingCost,
-                notes: {} // Frontend can pass notes if needed later
+                notes: {}
             });
 
             await payment.save();
@@ -51,18 +55,21 @@ export class PaymentService {
             );
 
             return {
-                id: payment._id,
+                id: (payment as any)._id,
                 orderId: payment.orderId,
                 transactionId: payment.transactionId,
                 amount: payment.amount,
                 currency: payment.currency,
                 status: payment.status,
-                created_at: payment.createdAt, // Mongoose timestamp
+                createdAt: (payment as any).createdAt,
                 shippingAddress: savedAddress,
             };
         } catch (error) {
-            console.error('Error creating local order:', error);
-            throw new BadRequestException('Failed to create order record');
+            // Log the real error so we can debug from GCP logs
+            console.error('Error creating order — full details:', JSON.stringify(error?.message || error));
+            throw new BadRequestException(
+                error?.message || 'Failed to create order record'
+            );
         }
     }
 
@@ -135,7 +142,11 @@ export class PaymentService {
     }
     async findAll(userId?: string): Promise<Payment[]> {
         const query = userId ? { userId: new Types.ObjectId(userId) } : {};
-        return this.paymentModel.find(query).exec();
+        return this.paymentModel
+            .find(query)
+            .populate('shippingAddress')  // join the address for admin view
+            .sort({ createdAt: -1 })       // newest first
+            .exec();
     }
 
     async findOne(id: string): Promise<Payment | null> {

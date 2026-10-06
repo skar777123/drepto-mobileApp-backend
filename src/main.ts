@@ -44,8 +44,9 @@ async function bootstrap() {
   // Enhanced validation to prevent NoSQL injection
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
+      whitelist: true,          // strips unknown fields safely
+      forbidNonWhitelisted: false, // do NOT reject requests with extra fields (nested DTOs are complex)
+      transform: true,          // auto-transform types (e.g. string to number)
     }),
   );
 
