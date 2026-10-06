@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 // import { TwilioService } from 'nestjs-twilio';
@@ -15,6 +15,7 @@ export class UserService {
     @InjectModel('User') private userModel: Model<UserDocument>,
     // private otpService: OtpService,
     // private readonly twilioService: TwilioService,
+    @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
   ) { }
 
@@ -105,5 +106,48 @@ export class UserService {
   async deleteUser(userId: string): Promise<boolean> {
     const result = await this.userModel.findByIdAndDelete(userId).exec();
     return !!result;
+  }
+
+  async findOrCreateOAuthUser(profile: any): Promise<any> {
+    const { provider, id, email, firstName, lastName } = profile;
+    
+    // First try to find user by their OAuth ID
+    const query = provider === 'google' ? { googleId: id } : { appleId: id };
+    let user = await this.userModel.findOne(query).exec();
+
+    if (!user && email) {
+      // If not found by OAuth ID, try to find by email
+      user = await this.userModel.findOne({ email }).exec();
+      if (user) {
+        // Link the OAuth ID to existing user
+        if (provider === 'google') user.googleId = id;
+        if (provider === 'apple') user.appleId = id;
+        await user.save();
+      }
+    }
+
+    if (!user) {
+      // Create new user if totally new
+      const newUser = new this.userModel({
+        email,
+        firstName,
+        lastName,
+        role: 'user',
+        // Optional fields set below
+      });
+      if (provider === 'google') newUser.googleId = id;
+      if (provider === 'apple') newUser.appleId = id;
+      await newUser.save();
+      user = newUser;
+    }
+
+    const userObj = {
+      id: (user._id as any).toString(),
+      ...user.toObject(),
+    };
+    
+    // Generate token
+    const token = await this.authService.generateToken({ id: userObj.id, role: userObj.role });
+    return { user: userObj, token };
   }
 }

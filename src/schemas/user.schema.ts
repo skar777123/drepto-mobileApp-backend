@@ -17,7 +17,7 @@ export class User {
   @Prop()
   age: number;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: false, unique: true, sparse: true })
   mobileNumber: Number;
 
   @Prop()
@@ -41,8 +41,14 @@ export class User {
   // @Prop()
   // otpExpiry: Date; 
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   password: string;
+
+  @Prop({ required: false })
+  googleId: string;
+
+  @Prop({ required: false })
+  appleId: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
