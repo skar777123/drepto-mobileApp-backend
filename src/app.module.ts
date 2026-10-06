@@ -26,6 +26,7 @@ import { ContactModule } from './contact/contact.module';
 import { PaymentModule } from './payment/payment.module';
 import { ShippingAddressModule } from './shipping-address/shipping-address.module';
 import { FeedbackModule } from './feedback/feedback.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { FeedbackModule } from './feedback/feedback.module';
     PaymentModule,
     ShippingAddressModule,
     FeedbackModule,
+    ReviewModule,
   ],
   controllers: [AppController],
   providers: [AppService],
