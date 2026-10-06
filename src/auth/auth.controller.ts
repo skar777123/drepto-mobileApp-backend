@@ -19,7 +19,7 @@ export class AuthController {
     // The user and token are returned from the validate method of GoogleStrategy
     const { user, token } = req.user;
     // Redirect to frontend with token
-    return res.redirect(`http://localhost:5173/oauth-success?token=${token}&userId=${user.id}`);
+    return res.redirect(`https://www.dreptobiodevices.com/oauth-success?token=${token}&userId=${user.id}`);
   }
 
   @Public()
@@ -35,6 +35,6 @@ export class AuthController {
   appleAuthRedirect(@Req() req, @Res() res) {
     const { user, token } = req.user;
     // Redirect to frontend with token
-    return res.redirect(`http://localhost:5173/oauth-success?token=${token}&userId=${user.id}`);
+    return res.redirect(`https://www.dreptobiodevices.com/oauth-success?token=${token}&userId=${user.id}`);
   }
 }

@@ -12,7 +12,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID || 'your_google_client_id',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'your_google_client_secret',
-      callbackURL: 'http://localhost:3000/auth/google/callback',
+      callbackURL: 'https://api.dreptobiodevices.com/auth/google/callback',
       scope: ['email', 'profile'],
     });
   }
