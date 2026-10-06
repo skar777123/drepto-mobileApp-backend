@@ -24,6 +24,13 @@ export class PaymentController {
         return this.paymentService.createOrder(createOrderDto, req.user.id);
     }
     @UseGuards(AuthGuard)
+    @Get('all-orders')
+    findAllOrders() {
+        // You could add an AdminGuard here later if needed
+        return this.paymentService.findAll();
+    }
+
+    @UseGuards(AuthGuard)
     @Get()
     findAll(@Req() req) {
         return this.paymentService.findAll(req.user.id);
