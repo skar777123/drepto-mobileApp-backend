@@ -88,8 +88,8 @@ export class UserService {
       }
     }
 
-    user.otp = null;
-    user.otpExpiry = null;
+    user.otp = undefined as any;
+    user.otpExpiry = undefined as any;
     await user.save();
 
     return { success: true, message: 'OTP verified successfully' };
