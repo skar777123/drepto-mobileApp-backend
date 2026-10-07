@@ -16,15 +16,19 @@ export class ReviewService {
     }
 
     async findAll(): Promise<Review[]> {
-        return this.reviewModel.find().populate('userId', 'name').exec();
+        return this.reviewModel.find().populate('userId', 'firstName lastName').exec();
     }
 
     async findByProductId(productId: string): Promise<Review[]> {
-        return this.reviewModel.find({ productId }).populate('userId', 'name').exec();
+        return this.reviewModel.find({ productId }).populate('userId', 'firstName lastName').exec();
+    }
+
+    async findByUserId(userId: string): Promise<Review[]> {
+        return this.reviewModel.find({ userId }).populate('productId', 'name images').exec();
     }
 
     async findOne(id: string): Promise<Review> {
-        const review = await this.reviewModel.findById(id).populate('userId', 'name').exec();
+        const review = await this.reviewModel.findById(id).populate('userId', 'firstName lastName').exec();
         if (!review) {
             throw new NotFoundException(`Review #${id} not found`);
         }

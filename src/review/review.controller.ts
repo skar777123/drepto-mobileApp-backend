@@ -21,6 +21,11 @@ export class ReviewController {
         return this.reviewService.findByProductId(productId);
     }
 
+    @Get('user/:userId')
+    findByUserId(@Param('userId') userId: string) {
+        return this.reviewService.findByUserId(userId);
+    }
+
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.reviewService.findOne(id);
