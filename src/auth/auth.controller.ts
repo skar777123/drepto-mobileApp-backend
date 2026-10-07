@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Res, Redirect } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Public } from './public.decorator';
 import { GoogleAuthGuard } from './google-auth.guard';
@@ -16,11 +16,12 @@ export class AuthController {
   @Public()
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
-  googleAuthRedirect(@Req() req, @Res() res) {
+  @Redirect()
+  googleAuthRedirect(@Req() req) {
     // The user and token are returned from the validate method of GoogleStrategy
     const { user, token } = req.user;
     // Redirect to frontend with token
-    return res.redirect(`https://www.dreptobiodevices.com/oauth-success?token=${token}&userId=${user.id}`);
+    return { url: `https://www.dreptobiodevices.com/oauth-success?token=${token}&userId=${user.id}` };
   }
 
   @Public()
