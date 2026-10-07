@@ -38,14 +38,14 @@ export class GoogleAuthGuard extends AuthGuard('google') {
       console.error('Error properties:', JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
       console.error('Info:', info);
       console.error('---------------------------------');
-      
+
       // Return the error message directly to the client for debugging
       throw new HttpException(
         {
           message: 'Google Auth Error',
           error: err.message || err,
           // Extract specific oauth2 error details if available
-          oauthError: err.oauthError || err.internal, 
+          oauthError: err.oauthError || err.internal,
           info: info,
           stack: err.stack,
         },
