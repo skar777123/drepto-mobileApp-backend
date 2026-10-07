@@ -124,9 +124,15 @@ export class AppController {
     try {
       const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${API_KEY}`);
       const data = await response.json();
+      
+      // Sanitize the response to avoid leaking Google's internal error messages to the client
+      if (data && data.status !== 'OK') {
+        return { status: data.status, results: [] };
+      }
       return data;
     } catch (error: any) {
-      return { status: 'ERROR', message: error.message };
+      // Return a generic error message
+      return { status: 'ERROR', message: 'Unable to fetch location data' };
     }
   }
 }
