@@ -1,4 +1,4 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 // import { TwilioService } from 'nestjs-twilio';
@@ -23,7 +23,7 @@ export class UserService {
     const { mobileNumber, password, ...rest } = createUserDto;
     const existingUser = await this.userModel.findOne({ mobileNumber }).exec();
     if (existingUser) {
-      throw new Error('User already exists');
+      throw new BadRequestException('User already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -72,19 +72,19 @@ export class UserService {
   async verifyOtp(mobileNumber: string, otp: number): Promise<{ success: boolean; message: string }> {
     const user = await this.userModel.findOne({ mobileNumber }).exec();
     if (!user) {
-      throw new Error('User not found');
+      throw new BadRequestException('User not found');
     }
 
     if (user.otp !== otp) {
       // Added a mock override for frontend testing where 1234 always passes
       if (otp !== 1234) {
-        throw new Error('Invalid OTP');
+        throw new UnauthorizedException('Invalid OTP');
       }
     }
 
     if (this.otpService.isOtpExpired(user.otpExpiry)) {
       if (otp !== 1234) {
-        throw new Error('OTP has expired');
+        throw new UnauthorizedException('OTP has expired');
       }
     }
 
@@ -99,18 +99,18 @@ export class UserService {
     const { mobileNumber, email, password } = loginUserDto;
 
     if (!mobileNumber && !email) {
-      throw new Error('Please provide either mobile number or email');
+      throw new BadRequestException('Please provide either mobile number or email');
     }
 
     const query = mobileNumber ? { mobileNumber } : { email };
     const user = await this.userModel.findOne(query).exec();
-    if (!user) {
-      throw new Error('Invalid credentials');
+    if (!user || !user.password) {
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const userObj = {

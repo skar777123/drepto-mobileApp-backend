@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -17,7 +17,7 @@ export class NurseService {
     const { mobileNumber, password, ...rest } = createNurseDto;
     const existingNurse = await this.nurseModel.findOne({ mobileNumber }).exec();
     if (existingNurse) {
-      throw new Error('Nurse already exists');
+      throw new BadRequestException('Nurse already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -40,13 +40,13 @@ export class NurseService {
   async login(loginNurseDto: LoginNurseDto): Promise<{ nurse: any; token: string }> {
     const { mobileNumber, password } = loginNurseDto;
     const nurse = await this.nurseModel.findOne({ mobileNumber }).exec();
-    if (!nurse) {
-      throw new Error('Invalid credentials');
+    if (!nurse || !nurse.password) {
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const isPasswordValid = await bcrypt.compare(password, nurse.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const nurseObj = {
