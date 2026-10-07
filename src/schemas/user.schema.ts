@@ -24,6 +24,15 @@ export class User {
   gender: string;
 
   @Prop()
+  bloodGroup: string;
+
+  @Prop()
+  weight: number;
+
+  @Prop()
+  profileImage: string;
+
+  @Prop()
   role: string;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Payment' }] })
@@ -32,14 +41,14 @@ export class User {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'ShippingAddress' }] })
   address: Types.ObjectId[];
 
-  // @Prop()
-  // medicalHistory: string;
+  @Prop()
+  medicalHistory: string;
 
-  // @Prop()
-  // otp: Number;
+  @Prop()
+  otp: Number;
 
-  // @Prop()
-  // otpExpiry: Date; 
+  @Prop()
+  otpExpiry: Date; 
 
   @Prop({ required: false })
   password: string;

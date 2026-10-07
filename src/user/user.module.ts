@@ -4,12 +4,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { User, UserSchema } from '../schemas/user.schema';
-// import { OtpModule } from '../otp/otp.module';
+import { OtpModule } from '../otp/otp.module';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    // OtpModule,
+    OtpModule,
     forwardRef(() => AuthModule),
     // TwilioModule.forRoot({
     //   accountSid: process.env.TWILIO_ACCOUNT_SID,

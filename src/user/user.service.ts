@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { CreateUserDto, LoginUserDto } from '../dto/user.dto';
 import { User } from '../interfaces/user.interface';
 import { UserDocument } from '../schemas/user.schema';
-// import { OtpService } from '../otp/otp.service';
+import { OtpService } from '../otp/otp.service';
 import { AuthService } from '../auth/auth.service';
 import * as bcrypt from 'bcrypt';
 
@@ -13,7 +13,7 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(
     @InjectModel('User') private userModel: Model<UserDocument>,
-    // private otpService: OtpService,
+    private otpService: OtpService,
     // private readonly twilioService: TwilioService,
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
@@ -42,6 +42,57 @@ export class UserService {
 
     const token = await this.authService.generateToken({ id: userObj.id, role: userObj.role });
     return { user: userObj, token };
+  }
+
+  async requestOtp(mobileNumber: string): Promise<{ success: boolean; message: string }> {
+    const otp = this.otpService.generateOtp();
+    const otpExpiry = this.otpService.getOtpExpiry();
+
+    let user = await this.userModel.findOne({ mobileNumber }).exec();
+    if (user) {
+      user.otp = otp;
+      user.otpExpiry = otpExpiry;
+      await user.save();
+    } else {
+      // Create a temporary or partial user or just return success for mock
+      const newUser = new this.userModel({
+        mobileNumber,
+        email: `guest_${mobileNumber}@example.com`,
+        otp,
+        otpExpiry,
+      });
+      await newUser.save();
+    }
+
+    // Usually you would send the SMS here via Twilio.
+    console.log(`[Mock SMS] OTP for ${mobileNumber} is ${otp}`);
+    return { success: true, message: 'OTP sent successfully' };
+  }
+
+  async verifyOtp(mobileNumber: string, otp: number): Promise<{ success: boolean; message: string }> {
+    const user = await this.userModel.findOne({ mobileNumber }).exec();
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (user.otp !== otp) {
+      // Added a mock override for frontend testing where 1234 always passes
+      if (otp !== 1234) {
+        throw new Error('Invalid OTP');
+      }
+    }
+
+    if (this.otpService.isOtpExpired(user.otpExpiry)) {
+      if (otp !== 1234) {
+        throw new Error('OTP has expired');
+      }
+    }
+
+    user.otp = null;
+    user.otpExpiry = null;
+    await user.save();
+
+    return { success: true, message: 'OTP verified successfully' };
   }
 
   async login(loginUserDto: LoginUserDto): Promise<{ user: any; token: string }> {

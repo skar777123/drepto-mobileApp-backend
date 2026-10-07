@@ -35,6 +35,18 @@ export class UserController {
     return this.userService.login(loginUserDto);
   }
 
+  @Public()
+  @Post('request-otp')
+  async requestOtp(@Body() body: { mobileNumber: string }) {
+    return this.userService.requestOtp(body.mobileNumber);
+  }
+
+  @Public()
+  @Post('verify-otp')
+  async verifyOtp(@Body() body: { mobileNumber: string; otp: number }) {
+    return this.userService.verifyOtp(body.mobileNumber, Number(body.otp));
+  }
+
   @UseGuards(AuthGuard)
   @Get()
   findAll() {
