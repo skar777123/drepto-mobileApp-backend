@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   Header,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MongoService } from './mongo/mongo.service';
@@ -115,5 +116,17 @@ export class AppController {
   async metrics() {
     const metrics = await client.register.metrics();
     return metrics;
+  }
+
+  @Get('location/geocode')
+  async geocodeLocation(@Query('lat') lat: string, @Query('lng') lng: string) {
+    const API_KEY = process.env.GOOGLE_MAPS_API_KEY || process.env.VITE_GOOGLE_MAPS_API_KEY; 
+    try {
+      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${API_KEY}`);
+      const data = await response.json();
+      return data;
+    } catch (error: any) {
+      return { status: 'ERROR', message: error.message };
+    }
   }
 }
