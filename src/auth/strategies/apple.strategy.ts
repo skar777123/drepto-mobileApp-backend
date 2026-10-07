@@ -20,17 +20,22 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
   }
 
   async validate(accessToken: string, refreshToken: string, idToken: string, profile: any, done: any): Promise<any> {
-    const { id, email, name } = profile || {};
-    
-    // Find or create user
-    const user = await this.userService.findOrCreateOAuthUser({
-      provider: 'apple',
-      id,
-      email: email || '',
-      firstName: name?.firstName || 'Apple',
-      lastName: name?.lastName || 'User',
-    });
+    try {
+      const { id, email, name } = profile || {};
+      
+      // Find or create user
+      const user = await this.userService.findOrCreateOAuthUser({
+        provider: 'apple',
+        id,
+        email: email || '',
+        firstName: name?.firstName || 'Apple',
+        lastName: name?.lastName || 'User',
+      });
 
-    done(null, user);
+      done(null, user);
+    } catch (error) {
+      console.error('Apple Auth Error:', error);
+      done(error, false);
+    }
   }
 }

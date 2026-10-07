@@ -18,17 +18,26 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
-    const { id, name, emails } = profile;
-    
-    // Find or create user
-    const user = await this.userService.findOrCreateOAuthUser({
-      provider: 'google',
-      id,
-      email: emails[0].value,
-      firstName: name.givenName,
-      lastName: name.familyName,
-    });
+    try {
+      const { id, name, emails } = profile;
+      
+      const email = emails && emails.length > 0 ? emails[0].value : null;
+      const firstName = name ? name.givenName : '';
+      const lastName = name ? name.familyName : '';
+      
+      // Find or create user
+      const user = await this.userService.findOrCreateOAuthUser({
+        provider: 'google',
+        id,
+        email,
+        firstName,
+        lastName,
+      });
 
-    done(null, user);
+      done(null, user);
+    } catch (error) {
+      console.error('Google Auth Error:', error);
+      done(error, false);
+    }
   }
 }
