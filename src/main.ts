@@ -10,7 +10,7 @@ import client from 'prom-client';
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    new FastifyAdapter({ bodyLimit: 52428800 }),
   );
   const fastifyInstance = app.getHttpAdapter().getInstance();
   fastifyInstance.register(require('@fastify/helmet'), {
