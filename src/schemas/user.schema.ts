@@ -38,8 +38,8 @@ export class User {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Payment' }] })
   orders: Types.ObjectId[];
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'ShippingAddress' }] })
-  address: Types.ObjectId[];
+  @Prop()
+  address: string;
 
   @Prop()
   medicalHistory: string;
