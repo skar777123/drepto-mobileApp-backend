@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type OrderStatus = 'Placed' | 'Packaging' | 'Dispatched' | 'Delivered' | 'Active';
+export type OrderStatus = 'Placed' | 'Packaging' | 'Dispatched' | 'Delivered' | 'Active' | 'Cancelled';
+export type RefundStatus = 'Not Applicable' | 'Pending' | 'Processed';
 export type ShippingSource = 'IIT Bombay' | 'Warehouse' | 'Digital';
 export type ShippingMethod = 'India Post' | 'Speed Post' | 'Digital';
 
@@ -57,9 +58,15 @@ export class Order {
 
   @Prop({
     required: true,
-    enum: ['Placed', 'Packaging', 'Dispatched', 'Delivered', 'Active'],
+    enum: ['Placed', 'Packaging', 'Dispatched', 'Delivered', 'Active', 'Cancelled'],
   })
   status: OrderStatus;
+
+  @Prop()
+  cancelledAt?: string;
+
+  @Prop({ enum: ['Not Applicable', 'Pending', 'Processed'] })
+  refundStatus?: RefundStatus;
 
   @Prop({ type: SchemaFactory.createForClass(Address), required: true })
   shippingAddress: Address;

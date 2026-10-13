@@ -32,6 +32,11 @@ export class OrderController {
     return this.orderService.findOne(id);
   }
 
+  @Post(':id/cancel')
+  cancel(@Param('id') id: string) {
+    return this.orderService.cancel(id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: any) {
     return this.orderService.update(id, updateOrderDto);
