@@ -4,8 +4,26 @@ import { Document } from 'mongoose';
 
 export type ProductDocument = Product & Document;
 
+// ─── Nested Schema for Package Dimensions ───
+@Schema({ _id: false })
+export class PackageDetail {
+    @Prop()
+    length?: number;    // cm
+
+    @Prop()
+    breadth?: number;   // cm
+
+    @Prop()
+    height?: number;    // cm
+
+    @Prop()
+    weight?: number;    // grams
+}
+
 @Schema({ timestamps: true })
 export class Product {
+
+    /* ── Core Info ── */
     @Prop({ required: true })
     name: string;
 
@@ -15,20 +33,60 @@ export class Product {
     @Prop()
     detailedDescription: string;
 
+    /* ── Pricing ── */
     @Prop({ required: true })
     price: number;
 
     @Prop({ required: true })
     mrp: number;
 
+    @Prop()
+    offerDescription: string;       // e.g. "Buy 2 Get 1 Free"
+
+    /* ── Media ── */
     @Prop({ type: [String], default: [] })
     images: string[];
 
+    /* ── Classification ── */
     @Prop({ required: true })
     category: string;
 
+    @Prop()
+    quantity: string;               // e.g. "500ml", "100 tablets"
+
+    @Prop()
+    form: string;                   // e.g. "Tablet", "Liquid", "Cream"
+
+    @Prop()
+    containerType: string;          // e.g. "Bottle", "Blister Pack", "Tube"
+
+    @Prop()
+    applicationArea: string;        // e.g. "Face", "Body", "Scalp"
+
+    @Prop()
+    packOf: number;                 // e.g. 1, 3, 6
+
+    @Prop()
+    idealsFor: string;              // e.g. "Men", "Women", "All Skin Types"
+
+    @Prop()
+    licenseNumber: string;          // Drug / FSSAI / manufacturing licence
+
     @Prop({ type: [String], default: [] })
-    ingredients: string[];
+    itemIncluded: string[];         // e.g. ["1 Bottle", "1 Dropper"]
+
+    /* ── Product Details ── */
+    @Prop({ type: [String], default: [] })
+    keyFeatures: string[];          // Bullet-point feature highlights
+
+    @Prop({ type: [String], default: [] })
+    keySpecs: string[];             // Technical specs, e.g. ["SPF 50", "pH 5.5"]
+
+    @Prop({ type: [String], default: [] })
+    composition: string[];          // Active ingredients / formula breakdown
+
+    @Prop({ type: [String], default: [] })
+    ingredients: string[];          // Full ingredient list
 
     @Prop({ type: [String], default: [] })
     benefits: string[];
@@ -38,6 +96,14 @@ export class Product {
 
     @Prop()
     developmentStory: string;
+
+    /* ── Shelf Life ── */
+    @Prop()
+    maximumShelfLife: string;       // e.g. "24 months from manufacture date"
+
+    /* ── Package Details ── */
+    @Prop({ type: PackageDetail })
+    packageDetail: PackageDetail;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
