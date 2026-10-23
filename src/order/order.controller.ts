@@ -9,10 +9,21 @@ import {
   Query,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
+import { CalculatePricingDto } from './dto/calculate-pricing.dto';
 
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
+
+  @Post('calculate-pricing')
+  calculatePricing(@Body() calculatePricingDto: CalculatePricingDto) {
+    return this.orderService.calculateCartPricing(calculatePricingDto);
+  }
+
+  @Get('user-activity')
+  getUserActivity(@Query('userEmail') userEmail: string) {
+    return this.orderService.getUserActivity(userEmail);
+  }
 
   @Post()
   create(@Body() createOrderDto: any) {
