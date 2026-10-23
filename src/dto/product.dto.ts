@@ -8,6 +8,7 @@ import {
     ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { OfferDto } from './offer.dto';
 
 // ─────────────────────────────────────────────
 //  Nested DTO – Package Dimensions & Weight
@@ -56,6 +57,12 @@ export class CreateProductDto {
     @IsOptional()
     @IsString()
     offerDescription?: string;      // e.g. "Buy 2 Get 1 Free"
+
+    @IsOptional()
+    @IsObject()
+    @ValidateNested()
+    @Type(() => OfferDto)
+    offer?: OfferDto;
 
     /* ── Media ── */
     @IsArray()
@@ -177,6 +184,12 @@ export class UpdateProductDto {
     @IsOptional()
     @IsString()
     offerDescription?: string;
+
+    @IsOptional()
+    @IsObject()
+    @ValidateNested()
+    @Type(() => OfferDto)
+    offer?: OfferDto;
 
     /* ── Media ── */
     @IsOptional()

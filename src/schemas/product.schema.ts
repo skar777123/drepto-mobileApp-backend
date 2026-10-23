@@ -20,6 +20,37 @@ export class PackageDetail {
     weight?: number;    // grams
 }
 
+// ─── Nested Schema for Product Offer ───
+@Schema({ _id: false })
+export class Offer {
+    @Prop()
+    title?: string; // e.g. "Buy 2 Get 1 Free"
+
+    @Prop()
+    description?: string;
+
+    @Prop({ default: 'BOGO', enum: ['BOGO', 'PERCENTAGE', 'FLAT'] })
+    type?: string;
+
+    @Prop({ default: 2 })
+    buyQuantity?: number;
+
+    @Prop({ default: 1 })
+    getFreeQuantity?: number;
+
+    @Prop({ default: 0 })
+    discountPercentage?: number;
+
+    @Prop({ default: 0 })
+    flatDiscount?: number;
+
+    @Prop({ default: 1 })
+    minQuantity?: number;
+
+    @Prop({ default: true })
+    isActive?: boolean;
+}
+
 @Schema({ timestamps: true })
 export class Product {
 
@@ -42,6 +73,9 @@ export class Product {
 
     @Prop()
     offerDescription: string;       // e.g. "Buy 2 Get 1 Free"
+
+    @Prop({ type: SchemaFactory.createForClass(Offer) })
+    offer?: Offer;
 
     /* ── Media ── */
     @Prop({ type: [String], default: [] })
