@@ -66,10 +66,22 @@ export class OrderService {
   }
 
   async findOne(id: string): Promise<any> {
-    const order: any = await this.orderModel.findOne({ id }).lean().exec();
+    let order: any = null;
+    if (Types.ObjectId.isValid(id)) {
+      order = await this.orderModel.findById(id).lean().exec();
+    }
+    if (!order) {
+      order = await this.orderModel.findOne({ id }).lean().exec();
+    }
+    if (!order) {
+      order = await this.orderModel.findOne({ orderId: id }).lean().exec();
+    }
     if (!order) {
       throw new NotFoundException(`Order with ID ${id} not found`);
     }
+
+    // Ensure order.id is populated for invoice displays
+    const orderIdentifier = order.id || order.orderId || String(order._id);
 
     // Pre-calculate invoice figures server-side to offload work from client
     const deliveryCharge =
@@ -90,6 +102,7 @@ export class OrderService {
 
     return {
       ...order,
+      id: orderIdentifier,
       subtotal,
       deliveryCharge,
       grandTotal: order.total,
