@@ -294,13 +294,13 @@ export class OrderService {
             safeQty > 0 ? itemFinalTotal / safeQty : unitPrice;
           offerTitle = offer.title || `Buy ${buyQty} Get ${freeQty} Free`;
 
-          if (remainder === buyQty) {
-            hint = `Add ${freeQty} more to get ${
-              freeQty > 1 ? `${freeQty} items` : '1'
-            } FREE! 🎁`;
+          if (freeUnits > 0) {
+            hint = `🎁 ${freeUnits} FREE product${
+              freeUnits > 1 ? 's' : ''
+            } automatically included in your order!`;
           } else if (remainder > 0 && remainder < buyQty) {
             const need = buyQty - remainder;
-            hint = `Add ${need} more item${need > 1 ? 's' : ''} for ${offerTitle}`;
+            hint = `Add ${need} more item${need > 1 ? 's' : ''} to get ${freeQty} FREE automatically! 🎁`;
           }
         } else if (type === 'PERCENTAGE') {
           const pct = Math.min(
