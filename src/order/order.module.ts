@@ -15,6 +15,7 @@ import {
   LabTestBooking,
   LabTestBookingSchema,
 } from '../schemas/lab-test-booking.schema';
+import { Product, ProductSchema } from '../schemas/product.schema';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import {
       { name: DoctorAppointment.name, schema: DoctorAppointmentSchema },
       { name: NurseAppointment.name, schema: NurseAppointmentSchema },
       { name: LabTestBooking.name, schema: LabTestBookingSchema },
+      { name: Product.name, schema: ProductSchema },
     ]),
   ],
   controllers: [OrderController],

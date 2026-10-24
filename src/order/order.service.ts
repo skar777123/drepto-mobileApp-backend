@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Order, OrderDocument } from '../schemas/order.schema';
 import {
   DoctorAppointment,
@@ -18,6 +18,7 @@ import {
   LabTestBooking,
   LabTestBookingDocument,
 } from '../schemas/lab-test-booking.schema';
+import { Product, ProductDocument } from '../schemas/product.schema';
 import { CalculatePricingDto } from './dto/calculate-pricing.dto';
 
 /** Shared order cancellation policy (keep in sync with frontend constants). */
@@ -34,9 +35,28 @@ export class OrderService {
     private nurseApptModel: Model<NurseAppointmentDocument>,
     @InjectModel(LabTestBooking.name)
     private labBookingModel: Model<LabTestBookingDocument>,
+    @InjectModel(Product.name)
+    private productModel: Model<ProductDocument>,
   ) {}
 
   async create(createOrderDto: any): Promise<Order> {
+    // Verify prices against the database to guarantee price integrity
+    if (Array.isArray(createOrderDto.items) && createOrderDto.items.length > 0) {
+      try {
+        const pricing = await this.calculateCartPricing({
+          items: createOrderDto.items,
+          shippingMethod: createOrderDto.shippingMethod,
+          pincode: createOrderDto.shippingAddress?.pincode,
+        });
+        if (pricing && pricing.totalWithShipping > 0) {
+          createOrderDto.total = pricing.totalWithShipping;
+          createOrderDto.shippingCost = pricing.shippingCost;
+        }
+      } catch (err) {
+        console.warn('Failed to verify pricing against db in createOrder:', err);
+      }
+    }
+
     const createdOrder = new this.orderModel(createOrderDto);
     return createdOrder.save();
   }
@@ -161,35 +181,86 @@ export class OrderService {
 
   /**
    * Server-side cart pricing and shipping calculation engine.
-   * Completely offloads heavy discount, offer matching, distance, and shipping cost calculations from client CPU.
+   * Product prices and active offers are fetched directly from MongoDB to ensure data integrity and security.
    */
-  calculateCartPricing(dto: CalculatePricingDto) {
+  async calculateCartPricing(dto: CalculatePricingDto) {
     const items = Array.isArray(dto.items) ? dto.items : [];
     const shippingMethod = dto.shippingMethod || 'India Post';
     const pincode = dto.pincode || '';
 
-    // 1. Calculate mock/real distance from pincode
+    // 1. Fetch official products directly from database by _id or name
+    const objectIdCandidates = items
+      .map((i) => i._id || i.id)
+      .filter((id) => id && Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
+
+    const nameCandidates = items
+      .map((i) => i.name || i.title)
+      .filter((n) => typeof n === 'string' && n.trim().length > 0)
+      .map((n) => String(n).trim());
+
+    const conditions: any[] = [];
+    if (objectIdCandidates.length > 0) {
+      conditions.push({ _id: { $in: objectIdCandidates } });
+    }
+    if (nameCandidates.length > 0) {
+      conditions.push({ name: { $in: nameCandidates } });
+    }
+
+    const dbProducts =
+      conditions.length > 0
+        ? await this.productModel.find({ $or: conditions }).lean().exec()
+        : [];
+
+    // 2. Calculate distance from pincode
     let distance = 0;
     if (pincode) {
       const pinVal = parseInt(pincode.substring(0, 3) || '100', 10);
       distance = ((isNaN(pinVal) ? 100 : pinVal) % 9) * 150 + 50;
     }
 
-    // 2. Process each item's offer and pricing
+    // 3. Process each item's offer and pricing using database prices
     let originalSubtotal = 0;
     let finalSubtotal = 0;
     let totalDiscount = 0;
 
     const processedItems = items.map((item) => {
-      const rawPrice =
-        typeof item.price === 'string'
-          ? parseFloat(item.price.replace(/[^0-9.]/g, ''))
-          : Number(item.price || 0);
-      const unitPrice = isNaN(rawPrice) ? 0 : rawPrice;
+      // Find matching product in database
+      const itemTitle = String(item.name || item.title || '').trim().toLowerCase();
+      const dbProduct: any = dbProducts.find((p: any) => {
+        const idMatch =
+          (item._id || item.id) &&
+          String(p._id) === String(item._id || item.id);
+        const nameMatch =
+          itemTitle.length > 0 &&
+          p.name &&
+          String(p.name).trim().toLowerCase() === itemTitle;
+        return idMatch || nameMatch;
+      });
+
+      // Price fetched directly from the database
+      let unitPrice = 0;
+      if (dbProduct && typeof dbProduct.price === 'number') {
+        unitPrice = dbProduct.price;
+      } else if (dbProduct && typeof dbProduct.price === 'string') {
+        unitPrice =
+          parseFloat(String(dbProduct.price).replace(/[^0-9.]/g, '')) || 0;
+      } else {
+        // Fallback to client price if product not found in database
+        const rawPrice =
+          typeof item.price === 'string'
+            ? parseFloat(item.price.replace(/[^0-9.]/g, ''))
+            : Number(item.price || 0);
+        unitPrice = isNaN(rawPrice) ? 0 : rawPrice;
+      }
+
       const safeQty = Math.max(0, Number(item.quantity) || 1);
       const itemOriginalTotal = unitPrice * safeQty;
 
-      const offer = this.resolveItemOffer(item);
+      // Offer also sourced directly from the database if present
+      const offerSource =
+        dbProduct?.offer || dbProduct?.offerDescription ? dbProduct : item;
+      const offer = this.resolveItemOffer(offerSource);
 
       let itemFinalTotal = itemOriginalTotal;
       let itemDiscount = 0;
@@ -271,6 +342,8 @@ export class OrderService {
 
       return {
         ...item,
+        name: dbProduct?.name || item.name || item.title,
+        price: unitPrice,
         unitPrice,
         originalTotal: itemOriginalTotal,
         finalTotal: itemFinalTotal,
@@ -281,10 +354,11 @@ export class OrderService {
         offerTitle,
         hint,
         hasOffer,
+        isDatabaseVerified: !!dbProduct,
       };
     });
 
-    // 3. Shipping cost and timeline
+    // 4. Shipping cost and timeline
     let shippingCost = 0;
     let estimatedDays = 7;
     const hasFreeShipping =
