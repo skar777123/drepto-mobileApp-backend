@@ -45,10 +45,13 @@ import { OrderModule } from './order/order.module';
     ),
     MongoModule,
     AuthModule,
-    CacheModule.register({
+    CacheModule.registerAsync({
       isGlobal: true,
-      ttl: 120 * 10000,
-      store: redisStore,
+      useFactory: async () => ({
+        ttl: 120 * 10000,
+        store: redisStore,
+        url: process.env.REDIS_URL || 'redis://localhost:6379',
+      }),
     }),
     UserModule,
     AuthorizedModule,

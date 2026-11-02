@@ -9,7 +9,8 @@ cd "$(dirname "$0")"
 # Pull latest code if using git
 if [ -d ".git" ]; then
   echo "📥 Pulling latest git changes..."
-  git pull origin main || git pull origin master
+  BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "master")
+  git pull origin "$BRANCH"
 fi
 
 # Build and restart containers using Docker Compose
