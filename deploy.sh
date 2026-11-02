@@ -6,11 +6,12 @@ echo "🚀 Starting Deployment..."
 # Navigate to project directory
 cd "$(dirname "$0")"
 
-# Pull latest code if using git
+# Sync with remote — always match the remote exactly (safe for deploy servers)
 if [ -d ".git" ]; then
-  echo "📥 Pulling latest git changes..."
+  echo "📥 Syncing with remote git..."
   BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "master")
-  git pull origin "$BRANCH"
+  git fetch origin
+  git reset --hard origin/"$BRANCH"
 fi
 
 # Build and restart containers using Docker Compose
