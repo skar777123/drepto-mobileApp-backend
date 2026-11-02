@@ -14,24 +14,26 @@ import { DoctorService } from './doctor.service';
 import { Doctor } from '../schemas/doctor.schema';
 import { CreateDoctorDto, UpdateDoctorDto } from '../dto/doctor.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Public } from '../auth/public.decorator';
 
 @Controller('doctor')
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   create(@Body() createDoctorDto: CreateDoctorDto) {
     return this.doctorService.create(createDoctorDto);
   }
 
-  @UseGuards(AuthGuard)
+  @Public()
   @Get()
   findAll() {
     return this.doctorService.findAll();
   }
 
-  @UseGuards(AuthGuard)
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.doctorService.findOne(id);

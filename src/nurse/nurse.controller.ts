@@ -34,19 +34,13 @@ export class NurseController {
     return this.nurseService.login(loginNurseDto);
   }
 
-  // @Post()
-  // @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  // create(@Body() createNurseDto: CreateNurseDto) {
-  //   return this.nurseService.create(createNurseDto);
-  // }
-
-  @UseGuards(AuthGuard)
+  @Public()
   @Get()
   findAll() {
     return this.nurseService.findAll();
   }
 
-  @UseGuards(AuthGuard)
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.nurseService.findOne(id);

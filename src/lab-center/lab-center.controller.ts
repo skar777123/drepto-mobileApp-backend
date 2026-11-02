@@ -12,6 +12,7 @@ import { LabCenterService } from './lab-center.service';
 import { LabCenter } from '../schemas/lab-center.schema';
 import { CreateLabCenterDto, UpdateLabCenterDto } from '../dto/lab-center.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Public } from '../auth/public.decorator';
 
 @Controller('lab-center')
 export class LabCenterController {
@@ -23,13 +24,13 @@ export class LabCenterController {
     return this.labCenterService.create(createLabCenterDto);
   }
 
-  @UseGuards(AuthGuard)
+  @Public()
   @Get()
   findAll() {
     return this.labCenterService.findAll();
   }
 
-  @UseGuards(AuthGuard)
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.labCenterService.findOne(id);

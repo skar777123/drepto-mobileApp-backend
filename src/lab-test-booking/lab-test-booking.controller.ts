@@ -15,6 +15,7 @@ import {
   UpdateLabTestBookingDto,
 } from '../dto/lab-test-booking.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Public } from '../auth/public.decorator';
 
 @Controller('lab-test-booking')
 export class LabTestBookingController {
@@ -26,13 +27,13 @@ export class LabTestBookingController {
     return this.labTestBookingService.create(createLabTestBookingDto);
   }
 
-  @UseGuards(AuthGuard)
+  @Public()
   @Get()
   findAll() {
     return this.labTestBookingService.findAll();
   }
 
-  @UseGuards(AuthGuard)
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.labTestBookingService.findOne(id);

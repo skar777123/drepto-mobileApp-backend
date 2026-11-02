@@ -12,6 +12,7 @@ import { LabSlotService } from './lab-slot.service';
 import { LabSlot } from '../schemas/lab-slot.schema';
 import { CreateLabSlotDto, UpdateLabSlotDto } from '../dto/lab-slot.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Public } from '../auth/public.decorator';
 
 @Controller('lab-slot')
 export class LabSlotController {
@@ -23,13 +24,13 @@ export class LabSlotController {
     return this.labSlotService.create(createLabSlotDto);
   }
 
-  @UseGuards(AuthGuard)
+  @Public()
   @Get()
   findAll() {
     return this.labSlotService.findAll();
   }
 
-  @UseGuards(AuthGuard)
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.labSlotService.findOne(id);

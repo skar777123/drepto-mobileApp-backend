@@ -15,6 +15,7 @@ import {
   UpdateDoctorAppointmentDto,
 } from '../dto/doctor-appointment.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Public } from '../auth/public.decorator';
 
 @Controller('doctor-appointment')
 export class DoctorAppointmentController {
@@ -28,13 +29,13 @@ export class DoctorAppointmentController {
     return this.doctorAppointmentService.create(createDoctorAppointmentDto);
   }
 
-  @UseGuards(AuthGuard)
+  @Public()
   @Get()
   findAll() {
     return this.doctorAppointmentService.findAll();
   }
 
-  @UseGuards(AuthGuard)
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.doctorAppointmentService.findOne(id);
