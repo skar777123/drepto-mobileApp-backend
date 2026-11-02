@@ -14,6 +14,14 @@ if [ -d ".git" ]; then
   git reset --hard origin/"$BRANCH"
 fi
 
+# Ensure .env exists before touching Docker — fail early to avoid bringing containers down
+if [ ! -f ".env" ]; then
+  echo "❌ ERROR: .env file not found at $(pwd)/.env"
+  echo "   Please create it on the server before deploying:"
+  echo "   nano $(pwd)/.env"
+  exit 1
+fi
+
 # Build and restart containers using Docker Compose
 echo "🐳 Rebuilding and restarting containers..."
 docker compose down
