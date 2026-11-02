@@ -19,8 +19,8 @@ async function bootstrap() {
         defaultSrc: ["'self'"],
       },
     },
-    crossOriginOpenerPolicy: { policy: 'same-origin' },
-    crossOriginResourcePolicy: { policy: 'same-origin' },
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
     originAgentCluster: true,
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
     hsts: { maxAge: 31536000 },
@@ -39,6 +39,8 @@ async function bootstrap() {
   app.enableCors({
     origin: corsOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    credentials: true,
   });
 
   // Enhanced validation to prevent NoSQL injection
