@@ -28,6 +28,7 @@ import { ShippingAddressModule } from './shipping-address/shipping-address.modul
 import { FeedbackModule } from './feedback/feedback.module';
 import { ReviewModule } from './review/review.module';
 import { OrderModule } from './order/order.module';
+import { SocialPostModule } from './social-post/social-post.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { OrderModule } from './order/order.module';
     FeedbackModule,
     ReviewModule,
     OrderModule,
+    SocialPostModule,
   ],
   controllers: [AppController],
   providers: [AppService],

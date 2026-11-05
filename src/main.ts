@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+﻿import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -32,15 +32,30 @@ async function bootstrap() {
   });
 
   // CORS origins from environment
-  const corsOrigins = process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(',')
-    : ['*'];
+  const rawOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
+    : [
+        'https://www.dreptobiodevices.com',
+        'https://dreptobiodevices.com',
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:5173',
+      ];
 
   app.enableCors({
-    origin: corsOrigins,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    // origin: '*' with credentials: true is rejected by browsers — use a function instead.
+    origin: (origin, callback) => {
+      if (!origin || rawOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   // Enhanced validation to prevent NoSQL injection
