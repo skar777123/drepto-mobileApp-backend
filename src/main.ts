@@ -31,28 +31,48 @@ async function bootstrap() {
     permittedCrossDomainPolicies: { permittedPolicies: 'none' },
   });
 
-  // CORS origins from environment
-  const rawOrigins = process.env.CORS_ORIGINS
+  // CORS origins configuration
+  const customOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
-    : [
-        'https://www.dreptobiodevices.com',
-        'https://dreptobiodevices.com',
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'http://localhost:5173',
-      ];
+    : [];
 
   app.enableCors({
-    // origin: '*' with credentials: true is rejected by browsers — use a function instead.
     origin: (origin, callback) => {
-      if (!origin || rawOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin ${origin} not allowed by CORS`), false);
+      // 1. Allow requests with no origin (mobile apps, Postman, curl)
+      if (!origin) {
+        return callback(null, true);
       }
+
+      // 2. Always allow any localhost or 127.0.0.1 port for development
+      if (
+        origin.startsWith('http://localhost') ||
+        origin.startsWith('http://127.0.0.1')
+      ) {
+        return callback(null, true);
+      }
+
+      // 3. Allow official domains & Vercel deployments
+      if (
+        origin.endsWith('dreptobiodevices.com') ||
+        origin.endsWith('.vercel.app') ||
+        customOrigins.includes(origin)
+      ) {
+        return callback(null, true);
+      }
+
+      // 4. Reject unknown origin cleanly without throwing 500 error on preflight
+      callback(null, false);
     },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'X-Requested-With',
+      'Origin',
+      'Access-Control-Request-Method',
+      'Access-Control-Request-Headers',
+    ],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,
